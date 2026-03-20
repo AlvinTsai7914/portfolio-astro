@@ -1,0 +1,58 @@
+// ==========================================================================
+// Theme Colors — data-theme 色彩覆蓋
+// 來源：docs/design-dna.md 第 1 節
+// 職責：定義 [data-theme="light"] 和 [data-theme="dark"] 的色彩變數
+//
+// 各 Section 各自帶 data-theme，不提供使用者手動切換（CLAUDE.md:77）
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// Light Theme
+// 來源：design-dna.md 第 1 節（Light 主題表）
+// --------------------------------------------------------------------------
+[data-theme="light"] {
+  --color-background: #eee;
+  --color-foreground: #141314;
+  --color-background-muted: #f7f7f7;
+  --color-foreground-muted: #696869;
+  --color-brand: #fb460d;
+  --color-brand-muted: #fd8d68;
+  --color-border: rgba(0, 0, 0, 0.019);
+  --color-border-muted: rgba(0, 0, 0, 0.102);
+  --color-surface: #d5d5d5;
+  --color-selection-bg: #fb460d;
+  --color-selection-text: #eee;
+
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+// --------------------------------------------------------------------------
+// Dark Theme
+// 來源：design-dna.md 第 1 節（Dark 主題表）
+// --------------------------------------------------------------------------
+[data-theme="dark"] {
+  --color-background: #141314;
+  --color-foreground: #eee;
+  --color-background-muted: #1a1a1a;
+  --color-foreground-muted: #818081;
+  --color-brand: #fd551d;
+  --color-brand-muted: #fd8d68; // 沿用 light 主題值
+  --color-border: rgba(238, 238, 238, 0.102);
+  --color-border-muted: rgba(238, 238, 238, 0.051);
+  --color-surface: #333;
+  --color-selection-bg: #fd551d;
+  --color-selection-text: #141314;
+
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+// --------------------------------------------------------------------------
+// Text Selection
+// 套用於所有帶 data-theme 的區塊
+// --------------------------------------------------------------------------
+[data-theme] ::selection {
+  background-color: var(--color-selection-bg);
+  color: var(--color-selection-text);
+}

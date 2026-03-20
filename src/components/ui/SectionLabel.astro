@@ -1,0 +1,24 @@
+---
+// ==========================================================================
+// SectionLabel — 代碼註解風格標籤（如 "// About"）
+// 來源：docs/design-dna.md 第 10 節
+// ==========================================================================
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<span class="section-label">// {text}</span>
+
+<style lang="scss">
+  .section-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    color: var(--color-foreground-muted);
+    margin-bottom: var(--space-4);
+  }
+</style>

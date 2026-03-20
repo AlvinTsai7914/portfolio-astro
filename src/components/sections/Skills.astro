@@ -1,0 +1,129 @@
+---
+// ==========================================================================
+// Skills Section
+// 來源：Stitch Screen 1e9f00ca、design-dna.md 第 12 節（修正紀錄）
+//
+// 分類 Grid + pill 標籤（正方形標記 ■）
+// data-theme="dark"
+// ==========================================================================
+
+import SectionLabel from "../ui/SectionLabel.astro";
+
+interface Props {
+  lang?: "zh" | "en";
+}
+
+const { lang = "zh" } = Astro.props;
+
+const headline = { zh: "技能與工具", en: "Skills & Tools" };
+
+const categories = [
+  {
+    name: { zh: "前端", en: "Frontend" },
+    skills: ["HTML", "CSS/SCSS", "JavaScript", "TypeScript", "React", "Astro"],
+  },
+  {
+    name: { zh: "樣式", en: "Styling" },
+    skills: ["SCSS", "CSS Custom Properties", "Bootstrap", "Responsive Design"],
+  },
+  {
+    name: { zh: "工具", en: "Tools" },
+    skills: ["Git", "npm", "Webpack", "Vite", "VS Code"],
+  },
+  {
+    name: { zh: "其他", en: "Other" },
+    skills: ["i18n", "Accessibility", "SEO", "Performance"],
+  },
+];
+---
+
+<section data-theme="dark" class="section" id="skills">
+  <div class="grid">
+    <div class="grid-full">
+      <SectionLabel text="Skills" />
+      <h2 class="skills__headline">{headline[lang]}</h2>
+
+      <div class="skills__grid">
+        {
+          categories.map((cat) => (
+            <div class="skills__category">
+              <h5 class="skills__category-name">
+                <span class="skills__category-marker" aria-hidden="true">■</span>
+                {cat.name[lang]}
+              </h5>
+              <div class="skills__tags">
+                {cat.skills.map((skill) => (
+                  <span class="skills__tag">{skill}</span>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  .skills__headline {
+    margin-bottom: var(--space-12);
+  }
+
+  // --------------------------------------------------------------------------
+  // Category Grid
+  // --------------------------------------------------------------------------
+  .skills__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-12);
+  }
+
+  .skills__category-name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    margin-bottom: var(--space-6);
+  }
+
+  .skills__category-marker {
+    color: var(--color-brand);
+    font-size: 0.5rem;
+    line-height: 1;
+  }
+
+  // --------------------------------------------------------------------------
+  // Tags
+  // --------------------------------------------------------------------------
+  .skills__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .skills__tag {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    color: var(--color-foreground);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+  }
+
+  // --------------------------------------------------------------------------
+  // Responsive
+  // --------------------------------------------------------------------------
+  @media (max-width: 1023px) {
+    .skills__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .skills__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+// ==========================================================================
+// BaseLayout — 全站 HTML 骨架
+// 職責：<head> 設定、Google Fonts 載入、全域樣式、共用元件（Header/Footer/FloatingSocial）
+// ==========================================================================
+
+import "../../styles/global.scss";
+import Header from "./Header.astro";
+import Footer from "./Footer.astro";
+import FloatingSocial from "../ui/FloatingSocial.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  lang?: "zh" | "en";
+}
+
+const {
+  title,
+  description = "",
+  lang = "zh",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang === "zh" ? "zh-Hant-TW" : "en"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    {description && <meta name="description" content={description} />}
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Google Fonts: Geist Sans + Geist Mono + Noto Sans TC + Noto Sans Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;700&family=Geist+Mono:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Sans+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>{title}</title>
+  </head>
+  <body>
+    <Header lang={lang} />
+    <FloatingSocial />
+    <main>
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

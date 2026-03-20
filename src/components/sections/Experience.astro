@@ -1,0 +1,145 @@
+---
+// ==========================================================================
+// Experience Section
+// 來源：Stitch Screen 598ec6fc、design-dna.md
+//
+// 水平三欄式：年份 | 職稱+公司 | 描述
+// data-theme="dark"
+// ==========================================================================
+
+import SectionLabel from "../ui/SectionLabel.astro";
+
+interface Props {
+  lang?: "zh" | "en";
+}
+
+const { lang = "zh" } = Astro.props;
+
+const headline = { zh: "工作經歷", en: "Work Experience" };
+
+const experiences = [
+  {
+    period: "2023 — Present",
+    title: { zh: "前端工程師", en: "Frontend Developer" },
+    company: "Company A",
+    description: {
+      zh: "使用 React 和 TypeScript 開發並維護響應式網頁應用程式，負責元件架構設計與效能最佳化。",
+      en: "Building and maintaining responsive web applications with React and TypeScript. Responsible for component architecture and performance optimization.",
+    },
+  },
+  {
+    period: "2021 — 2023",
+    title: { zh: "初階前端工程師", en: "Junior Frontend Developer" },
+    company: "Company B",
+    description: {
+      zh: "開發 UI 元件並實作響應式佈局，使用 SCSS 和 Bootstrap 建構模組化樣式系統。",
+      en: "Developed UI components and implemented responsive layouts using SCSS and Bootstrap.",
+    },
+  },
+  {
+    period: "2020 — 2021",
+    title: { zh: "網頁設計實習生", en: "Web Design Intern" },
+    company: "Company C",
+    description: {
+      zh: "協助網站改版專案，製作設計稿並實作 HTML/CSS 前端頁面。",
+      en: "Assisted in website redesign projects, creating mockups and implementing HTML/CSS.",
+    },
+  },
+];
+---
+
+<section data-theme="dark" class="section" id="experience">
+  <div class="grid">
+    <div class="grid-full">
+      <SectionLabel text="Experience" />
+      <h2 class="experience__headline">{headline[lang]}</h2>
+
+      <div class="experience__list">
+        {
+          experiences.map((exp) => (
+            <article class="experience__entry">
+              <span class="experience__period">{exp.period}</span>
+              <div class="experience__role">
+                <h4 class="experience__title">{exp.title[lang]}</h4>
+                <span class="experience__company">{exp.company}</span>
+              </div>
+              <p class="experience__desc">{exp.description[lang]}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  .experience__headline {
+    margin-bottom: var(--space-12);
+  }
+
+  // --------------------------------------------------------------------------
+  // Entry List
+  // --------------------------------------------------------------------------
+  .experience__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .experience__entry {
+    display: grid;
+    grid-template-columns: 3fr 5fr 4fr;
+    gap: var(--space-8);
+    padding-block: var(--space-8);
+    border-top: 1px solid var(--color-border-muted);
+
+    &:last-child {
+      border-bottom: 1px solid var(--color-border-muted);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Period
+  // --------------------------------------------------------------------------
+  .experience__period {
+    font-family: var(--font-mono);
+    font-size: var(--text-h5);
+    color: var(--color-foreground-muted);
+  }
+
+  // --------------------------------------------------------------------------
+  // Role
+  // --------------------------------------------------------------------------
+  .experience__role {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .experience__title {
+    color: var(--color-foreground);
+  }
+
+  .experience__company {
+    font-size: var(--text-body-lg);
+    color: var(--color-foreground-muted);
+  }
+
+  // --------------------------------------------------------------------------
+  // Description
+  // --------------------------------------------------------------------------
+  .experience__desc {
+    font-size: var(--text-body);
+    line-height: 1.5;
+    color: var(--color-foreground);
+  }
+
+  // --------------------------------------------------------------------------
+  // Responsive
+  // --------------------------------------------------------------------------
+  @media (max-width: 767px) {
+    .experience__entry {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+</style>

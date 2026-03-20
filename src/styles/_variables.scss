@@ -1,0 +1,128 @@
+// ==========================================================================
+// Design Tokens — CSS Custom Properties
+// 來源：docs/design-dna.md
+// 職責：定義所有非主題相關的設計 token（字體、間距、Grid、圓角、緩動）
+// ==========================================================================
+
+:root {
+  // --------------------------------------------------------------------------
+  // Font Family
+  // 來源：design-dna.md 第 2 節
+  // 順序：英文字型在前，中文字型在後（CLAUDE.md:91）
+  // --------------------------------------------------------------------------
+  --font-sans: "Geist Sans", "Noto Sans TC", ui-sans-serif, system-ui,
+    -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "Noto Sans Mono", ui-monospace, "Fira Code",
+    monospace;
+
+  // --------------------------------------------------------------------------
+  // Font Size — Fluid Typography with clamp()
+  // 來源：design-dna.md 第 2 節（字體大小表）
+  // --------------------------------------------------------------------------
+  --text-display: clamp(3rem, 3rem + 5vw, 8rem);
+  --text-h1: clamp(2rem, 2rem + 4vw, 6rem);
+  --text-h2: clamp(2.25rem, 2.25rem + 1.75vw, 4rem);
+  --text-h3: clamp(1.75rem, 1.75rem + 1.25vw, 3rem);
+  --text-h4: clamp(1.75rem, 1.75rem + 0.25vw, 2rem);
+  --text-h5: clamp(1.25rem, 1.25rem, 1.25rem);
+  --text-h6: clamp(1rem, 1rem, 1rem);
+  --text-body: 1rem;
+  --text-body-lg: clamp(1.125rem, 1.125rem + 0.125vw, 1.25rem);
+  --text-body-sm: 0.875rem;
+
+  // --------------------------------------------------------------------------
+  // Font Weight
+  // 來源：design-dna.md 第 2 節（字重表）
+  // --------------------------------------------------------------------------
+  --font-weight-light: 300;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  // --------------------------------------------------------------------------
+  // Base Colors（非主題相關）
+  // 來源：design-dna.md 第 1 節（基礎色）
+  // --------------------------------------------------------------------------
+  --color-black: #141314;
+  --color-white: #eee;
+
+  // --------------------------------------------------------------------------
+  // Spacing Scale
+  // 來源：design-dna.md 第 3 節（間距級距）
+  // --------------------------------------------------------------------------
+  --space-1: 0.25rem; // 4px
+  --space-2: 0.5rem; // 8px
+  --space-3: 0.75rem; // 12px
+  --space-4: 1rem; // 16px
+  --space-6: 1.5rem; // 24px
+  --space-8: 2rem; // 32px
+  --space-12: 3rem; // 48px
+  --space-16: 4rem; // 64px
+  --space-20: 5rem; // 80px
+  --space-24: 6rem; // 96px
+  --space-32: 8rem; // 128px
+  --space-40: 10rem; // 160px
+
+  // --------------------------------------------------------------------------
+  // Section Padding
+  // 來源：design-dna.md 第 3 節（Section 間距）
+  // Base: 64px / Large (>=1024px): 128px
+  // --------------------------------------------------------------------------
+  --section-padding: var(--space-16);
+
+  // --------------------------------------------------------------------------
+  // Grid System
+  // 來源：design-dna.md 第 4 節
+  // --------------------------------------------------------------------------
+  --grid-columns: 12;
+  --grid-gutter: 1rem;
+  --grid-margin: 1rem;
+  --grid-max-width: 120rem; // 1920px
+  --container-xl: 36rem; // 576px
+  --container-2xl: 42rem; // 672px
+
+  // --------------------------------------------------------------------------
+  // Border Radius
+  // 來源：design-dna.md 第 5 節
+  // --------------------------------------------------------------------------
+  --radius-4: 0.25rem;
+  --radius-8: 0.5rem;
+  --radius-12: 0.75rem;
+  --radius-full: 9999px;
+
+  // --------------------------------------------------------------------------
+  // Easing Functions
+  // 來源：design-dna.md 第 6 節
+  // --------------------------------------------------------------------------
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-quad: cubic-bezier(0.5, 1, 0.89, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // --------------------------------------------------------------------------
+  // Transition Defaults
+  // 來源：design-dna.md 第 6 節
+  // --------------------------------------------------------------------------
+  --transition-duration: 0.15s;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  // --------------------------------------------------------------------------
+  // Header
+  // 來源：design-dna.md 第 7 節
+  // --------------------------------------------------------------------------
+  --site-header-height: 104px;
+}
+
+// Responsive overrides
+@media (min-width: 640px) {
+  :root {
+    --grid-margin: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --grid-margin: 2rem;
+    --section-padding: var(--space-32);
+  }
+}

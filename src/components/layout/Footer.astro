@@ -1,0 +1,120 @@
+---
+// ==========================================================================
+// Footer — 頁尾
+// 來源：docs/design-dna.md 第 12 節（以 Contact+Footer Screen 為準）
+//
+// 佈局：Logo（左）、Nav（中）、Copyright（右）
+// 主題：dark（data-theme="dark"）
+// 間距：48px padding（比一般 Section 小）
+// ==========================================================================
+
+interface Props {
+  lang?: "zh" | "en";
+}
+
+const { lang = "zh" } = Astro.props;
+
+const navItems = [
+  { id: "about", label: { zh: "關於", en: "About" } },
+  { id: "skills", label: { zh: "技能", en: "Skills" } },
+  { id: "projects", label: { zh: "作品", en: "Projects" } },
+  { id: "experience", label: { zh: "經歷", en: "Experience" } },
+  { id: "contact", label: { zh: "聯繫", en: "Contact" } },
+];
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer" data-theme="dark">
+  <div class="footer__border"></div>
+  <div class="footer__inner grid">
+    <span class="footer__logo">YourName</span>
+
+    <nav class="footer__nav" aria-label="Footer navigation">
+      {
+        navItems.map((item, index) => (
+          <>
+            {index > 0 && <span class="footer__nav-dot" aria-hidden="true">&middot;</span>}
+            <a href={`#${item.id}`} class="footer__nav-link">
+              {item.label[lang]}
+            </a>
+          </>
+        ))
+      }
+    </nav>
+
+    <span class="footer__copyright">
+      &copy; {currentYear} YourName
+    </span>
+  </div>
+</footer>
+
+<style lang="scss">
+  // ==========================================================================
+  // Footer Styles
+  // ==========================================================================
+
+  .footer {
+    padding-block: var(--space-12); // 48px
+    position: relative;
+  }
+
+  .footer__border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: rgba(238, 238, 238, 0.051);
+  }
+
+  .footer__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer__logo {
+    font-family: var(--font-mono);
+    font-size: var(--text-h5);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+    flex-shrink: 0;
+  }
+
+  // --------------------------------------------------------------------------
+  // Navigation
+  // --------------------------------------------------------------------------
+  .footer__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .footer__nav-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    color: var(--color-foreground-muted);
+    text-decoration: none;
+    transition: color var(--transition-duration) var(--transition-timing);
+
+    &:hover {
+      color: var(--color-foreground);
+    }
+  }
+
+  .footer__nav-dot {
+    color: var(--color-foreground-muted);
+    font-size: var(--text-body-sm);
+  }
+
+  // --------------------------------------------------------------------------
+  // Copyright
+  // --------------------------------------------------------------------------
+  .footer__copyright {
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    color: var(--color-foreground-muted);
+    flex-shrink: 0;
+  }
+</style>

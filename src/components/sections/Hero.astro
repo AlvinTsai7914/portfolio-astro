@@ -1,0 +1,122 @@
+---
+// ==========================================================================
+// Hero Section
+// 來源：design-dna.md 第 9 節、Stitch Screen f41b24b7
+//
+// 全螢幕高度、大標題、副標、CTA 按鈕
+// data-theme="dark"
+// ==========================================================================
+
+import SectionLabel from "../ui/SectionLabel.astro";
+
+interface Props {
+  lang?: "zh" | "en";
+}
+
+const { lang = "zh" } = Astro.props;
+
+const content = {
+  zh: {
+    tagline: "打造高效能、無障礙且美觀的網頁體驗",
+    ctaProjects: "查看作品",
+    ctaContact: "聯繫我",
+  },
+  en: {
+    tagline: "Building high-performance, accessible, and beautiful web experiences.",
+    ctaProjects: "View Projects",
+    ctaContact: "Contact Me",
+  },
+};
+
+const t = content[lang];
+---
+
+<section data-theme="dark" class="hero section" id="hero">
+  <div class="grid">
+    <div class="grid-full hero__content">
+      <SectionLabel text="Hero" />
+      <h1 class="hero__title">Frontend<br />Developer</h1>
+      <p class="hero__name">YourName</p>
+      <p class="hero__tagline">{t.tagline}</p>
+      <div class="hero__cta">
+        <a href="#projects" class="hero__btn hero__btn--primary">{t.ctaProjects}</a>
+        <a href="#contact" class="hero__btn hero__btn--outline">{t.ctaContact}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: var(--site-header-height);
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero__title {
+    font-size: var(--text-display);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    margin-bottom: var(--space-6);
+  }
+
+  .hero__name {
+    font-family: var(--font-mono);
+    font-size: var(--text-h4);
+    color: var(--color-foreground-muted);
+    margin-bottom: var(--space-4);
+  }
+
+  .hero__tagline {
+    font-size: var(--text-body-lg);
+    color: var(--color-foreground-muted);
+    max-width: var(--container-2xl);
+    margin-bottom: var(--space-8);
+  }
+
+  .hero__cta {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .hero__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-8);
+    transition:
+      opacity var(--transition-duration) var(--transition-timing),
+      background-color var(--transition-duration) var(--transition-timing);
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  .hero__btn--primary {
+    background-color: var(--color-brand);
+    color: var(--color-white);
+  }
+
+  .hero__btn--outline {
+    border: 1px solid var(--color-foreground);
+    color: var(--color-foreground);
+
+    &:hover {
+      background-color: var(--color-foreground);
+      color: var(--color-background);
+      opacity: 1;
+    }
+  }
+</style>

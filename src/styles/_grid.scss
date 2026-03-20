@@ -1,0 +1,69 @@
+// ==========================================================================
+// Grid System — 12 欄 Grid
+// 來源：docs/design-dna.md 第 4 節
+// 職責：Grid 容器、欄位 mixin、utility classes
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// Grid Container
+// 來源：design-dna.md 第 4 節（Grid 系統表）
+// --------------------------------------------------------------------------
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+  gap: var(--grid-gutter);
+  max-width: var(--grid-max-width);
+  margin-inline: auto;
+  padding-inline: var(--grid-margin);
+}
+
+// --------------------------------------------------------------------------
+// Grid Column Mixin
+// 用法：@include grid-column(1, 12) → 全寬
+//       @include grid-column(3, 8)  → 窄版居中
+// 來源：design-dna.md 第 4 節（容器寬度層級）
+// --------------------------------------------------------------------------
+@mixin grid-column($start, $span) {
+  grid-column: #{$start} / span #{$span};
+}
+
+// --------------------------------------------------------------------------
+// Grid Utility Classes
+// 來源：design-dna.md 第 4 節（本專案各 Section 容器規劃）
+//
+// .grid-full   → 全寬（12 欄）：Hero, Skills, Projects, Experience, Contact, Footer
+// .grid-narrow → 窄版居中（8 欄）：About
+// --------------------------------------------------------------------------
+.grid-full {
+  grid-column: 1 / span 12;
+}
+
+.grid-narrow {
+  grid-column: 3 / span 8;
+}
+
+@media (max-width: 767px) {
+  .grid-narrow {
+    grid-column: 1 / span 12;
+  }
+}
+
+// --------------------------------------------------------------------------
+// Text Container — 段落文字最大寬度
+// 來源：design-dna.md 第 4 節（容器寬度層級）
+// --------------------------------------------------------------------------
+.text-container {
+  max-width: var(--container-2xl); // 42rem / 672px
+}
+
+.text-container-sm {
+  max-width: var(--container-xl); // 36rem / 576px
+}
+
+// --------------------------------------------------------------------------
+// Section — 共用 Section 間距
+// 來源：design-dna.md 第 3 節（Section 間距）
+// --------------------------------------------------------------------------
+.section {
+  padding-block: var(--section-padding);
+}

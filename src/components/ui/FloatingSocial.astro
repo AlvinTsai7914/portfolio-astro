@@ -1,0 +1,121 @@
+---
+// ==========================================================================
+// FloatingSocial — 右側固定社群連結
+// 來源：docs/design-dna.md 第 8 節
+//
+// 位置：頁面右側，垂直置中，position: fixed
+// 內容：GitHub + LinkedIn（垂直排列）
+// 色彩：隨 Section data-theme 變色（與 Header 相同邏輯）
+// ==========================================================================
+---
+
+<aside class="floating-social floating-social--dark" id="floating-social" aria-label="Social links">
+  <a
+    href="https://github.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="floating-social__link"
+    aria-label="GitHub"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+    </svg>
+  </a>
+  <a
+    href="https://linkedin.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="floating-social__link"
+    aria-label="LinkedIn"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  </a>
+</aside>
+
+<script>
+  // --------------------------------------------------------------------------
+  // FloatingSocial — 隨 Section data-theme 變色
+  // 邏輯與 Header 相同：IntersectionObserver 偵測重疊 Section
+  // --------------------------------------------------------------------------
+
+  function initFloatingSocial() {
+    const social = document.getElementById("floating-social");
+    if (!social) return;
+
+    const sections = document.querySelectorAll<HTMLElement>("section[data-theme]");
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const theme = (entry.target as HTMLElement).dataset.theme;
+            social.classList.remove("floating-social--light", "floating-social--dark");
+            social.classList.add(`floating-social--${theme}`);
+          }
+        }
+      },
+      {
+        // 偵測畫面中間位置（FloatingSocial 垂直置中）
+        rootMargin: "-45% 0px -45% 0px",
+        threshold: 0,
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  // 初始化：直接執行（MPA）+ astro:page-load（未來啟用 View Transitions 時）
+  initFloatingSocial();
+  document.addEventListener("astro:page-load", initFloatingSocial);
+</script>
+
+<style lang="scss">
+  // ==========================================================================
+  // FloatingSocial Styles
+  // ==========================================================================
+
+  .floating-social {
+    position: fixed;
+    right: var(--space-8);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    transition: color 0.3s var(--transition-timing);
+  }
+
+  .floating-social--dark {
+    color: var(--color-white);
+  }
+
+  .floating-social--light {
+    color: var(--color-black);
+  }
+
+  .floating-social__link {
+    color: inherit;
+    opacity: 0.5;
+    transition: opacity var(--transition-duration) var(--transition-timing);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  // 小螢幕隱藏，避免和內容重疊
+  @media (max-width: 1023px) {
+    .floating-social {
+      display: none;
+    }
+  }
+</style>
