@@ -54,7 +54,7 @@ const t = content[lang];
       </div>
       <div class="about__content">
         <RevealText delay={0.1}><SectionLabel text="About" /></RevealText>
-        <RevealText mb="var(--space-6)"><h2 class="about__headline">{t.headline}</h2></RevealText>
+        <RevealText pt="var(--space-3)" mb="var(--space-6)"><h2 class="about__headline">{t.headline}</h2></RevealText>
         {t.paragraphs.map((p) => <p class="about__text">{p}</p>)}
         <div class="about__stats">
           {
@@ -86,7 +86,6 @@ const t = content[lang];
     width: 100%;
     aspect-ratio: 3 / 4;
     background-color: var(--color-surface);
-    border-radius: var(--radius-12);
   }
 
   // --------------------------------------------------------------------------

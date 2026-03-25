@@ -35,9 +35,11 @@ const t = content[lang];
 <section data-theme="dark" class="hero section" id="hero">
   <div class="grid">
     <div class="grid-full hero__content">
-      <RevealText delay={0.1}><SectionLabel text="Hero" /></RevealText>
-      <RevealText><h1 class="hero__title">Frontend</h1></RevealText>
-      <RevealText delay={0.1} mb="var(--space-6)"><h1 class="hero__title">Developer</h1></RevealText>
+      <RevealText delay={0.2}><SectionLabel text="Hero" /></RevealText>
+      <h1>
+        <RevealText><span class="hero__title">Frontend</span></RevealText>
+        <RevealText delay={0.2}  mt="-24px"><span class="hero__title" role="doc-subtitle">Developer</span></RevealText>
+      </h1>
       <p class="hero__name">YourName</p>
       <p class="hero__tagline">{t.tagline}</p>
       <div class="hero__cta">
@@ -71,11 +73,12 @@ const t = content[lang];
   }
 
   .hero__title {
+    display: inline-block;
     font-size: var(--text-display);
     font-weight: 400;
     line-height: 1.1;
     letter-spacing: -0.035em;
-    margin-bottom: var(--space-6);
+    margin-left: -10px;
   }
 
   .hero__name {
@@ -218,47 +221,51 @@ const t = content[lang];
   //             transitionend 後從左展開（origin-left, scaleX 0→1）
   // mouseleave: 同樣方向重複一次
   // --------------------------------------------------------------------------
+  let underlineAbort: AbortController | null = null;
+
   function initUnderlineLinks() {
+    underlineAbort?.abort();
+    underlineAbort = new AbortController();
+    const { signal } = underlineAbort;
+
     document.querySelectorAll<HTMLElement>("[data-underline-dir]").forEach((link) => {
-      const line = link.querySelector<HTMLElement>(".hero__btn-underline");
-      if (!line) return;
+      const lineEl = link.querySelector<HTMLElement>(".hero__btn-underline");
+      if (!lineEl) return;
 
       let isAnimating = false;
 
       function animateOut() {
         isAnimating = true;
-        line!.style.transformOrigin = "right";
-        line!.style.transform = "scaleX(0)";
+        lineEl.style.transformOrigin = "right";
+        lineEl.style.transform = "scaleX(0)";
       }
 
       function onShrinkEnd(e: TransitionEvent) {
         if (e.propertyName !== "transform") return;
-        line!.removeEventListener("transitionend", onShrinkEnd);
+        lineEl.removeEventListener("transitionend", onShrinkEnd);
 
-        // 關閉 transition，瞬間移到左側起點
-        line!.style.transition = "none";
-        line!.style.transformOrigin = "left";
-        line!.style.transform = "scaleX(0)";
+        lineEl.style.transition = "none";
+        lineEl.style.transformOrigin = "left";
+        lineEl.style.transform = "scaleX(0)";
 
-        // 強制 reflow 後重新啟用 transition，從左展開
-        void line!.offsetWidth;
-        line!.style.transition = "";
-        line!.style.transform = "scaleX(1)";
+        void lineEl.offsetWidth;
+        lineEl.style.transition = "";
+        lineEl.style.transform = "scaleX(1)";
 
         isAnimating = false;
       }
 
       link.addEventListener("mouseenter", () => {
         if (isAnimating) return;
-        line!.addEventListener("transitionend", onShrinkEnd);
+        lineEl.addEventListener("transitionend", onShrinkEnd);
         animateOut();
-      });
+      }, { signal });
 
       link.addEventListener("mouseleave", () => {
         if (isAnimating) return;
-        line!.addEventListener("transitionend", onShrinkEnd);
+        lineEl.addEventListener("transitionend", onShrinkEnd);
         animateOut();
-      });
+      }, { signal });
     });
   }
 

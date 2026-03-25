@@ -42,7 +42,7 @@ const projects = (await getCollection(collectionName))
           <div class="projects__sidebar">
             <div class="projects__sidebar-header">
               <RevealText delay={0.1}><SectionLabel text="Projects" /></RevealText>
-              <RevealText mb="var(--space-4)"><h2 class="projects__headline">{headline[lang]}</h2></RevealText>
+              <RevealText pt="var(--space-3)" mb="var(--space-4)"><h2 class="projects__headline">{headline[lang]}</h2></RevealText>
               <p class="projects__desc">{description[lang]}</p>
             </div>
 
@@ -457,14 +457,17 @@ const projects = (await getCollection(collectionName))
 
   gsap.registerPlugin(ScrollTrigger);
 
-  // 用 AbortController 統一清理 event listener
+  // 清理用：AbortController（event listener）+ tweens 陣列（GSAP 動畫）
   let abortController: AbortController | null = null;
+  let activeTweens: gsap.core.Tween[] = [];
 
   function initProjectsScroll() {
-    // 清除舊的 ScrollTrigger + event listener
+    // 清除舊的 ScrollTrigger + tweens + event listener
     ScrollTrigger.getAll()
       .filter((st) => st.vars.id?.startsWith("projects"))
       .forEach((st) => st.kill());
+    activeTweens.forEach((tw) => tw.kill());
+    activeTweens = [];
     abortController?.abort();
     abortController = new AbortController();
     const { signal } = abortController;
@@ -509,9 +512,9 @@ const projects = (await getCollection(collectionName))
       const img = item.querySelector<HTMLElement>(".projects__item-image img") ||
         item.querySelector<HTMLElement>(".projects__item-image-placeholder");
 
-      // 視差動畫：圖片從 y: 120 → y: -120
+      // 視差動畫：圖片從 y: -120 → y: 120（對應 SCSS $parallax-offset: 120px）
       if (img) {
-        gsap.fromTo(img,
+        const tween = gsap.fromTo(img,
           { y: -120 },
           {
             y: 120,
@@ -525,6 +528,7 @@ const projects = (await getCollection(collectionName))
             },
           }
         );
+        activeTweens.push(tween);
       }
 
       // 活躍狀態偵測：大圖進入視窗中央範圍時切換指示器

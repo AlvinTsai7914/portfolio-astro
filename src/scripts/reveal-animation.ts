@@ -2,12 +2,7 @@
 // RevealText Animation — 雙色遮罩揭示動畫
 //
 // 掃描所有 [data-reveal] 元素，使用 GSAP ScrollTrigger 觸發動畫
-// 動畫流程：
-//   1. 橘色遮罩從左→右展開 (0.2s)
-//   2. 背景同色遮罩從左→右展開 (0.2s)
-//   3. 停頓 (0.2s)，文字設為可見
-//   4. 背景同色遮罩從左→右退場 (0.2s)
-//   5. 橘色遮罩從左→右退場 (0.2s)
+// 動畫時間由下方常數控制（MASK_DURATION / MASK_OVERLAP / PAUSE_DURATION）
 // ==========================================================================
 
 import { gsap } from "gsap";
@@ -15,8 +10,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const MASK_DURATION = 0.3;
-const MASK_OVERLAP = MASK_DURATION / 2; // 橘白遮罩重疊時間（橘色走到一半白色就開始）
+const MASK_DURATION = 0.25;
+const MASK_OVERLAP = MASK_DURATION / 2.5; // 橘白遮罩重疊時間（橘色走到一半白色就開始）
 const PAUSE_DURATION = 0.35;
 const EASE_IN = "power2.in";
 const EASE_OUT = "power2.out";
@@ -68,8 +63,12 @@ function createRevealTimeline(el: HTMLElement): gsap.core.Timeline {
   return tl;
 }
 
+let activeTimelines: gsap.core.Timeline[] = [];
+
 function initRevealAnimations() {
-  // 清除舊的 ScrollTrigger（View Transitions 重新初始化時）
+  // 清除舊的 Timeline + ScrollTrigger（View Transitions 重新初始化時）
+  activeTimelines.forEach((tl) => tl.kill());
+  activeTimelines = [];
   ScrollTrigger.getAll()
     .filter((st) => st.vars.id?.startsWith("reveal-"))
     .forEach((st) => st.kill());
@@ -78,6 +77,7 @@ function initRevealAnimations() {
 
   revealElements.forEach((el, index) => {
     const tl = createRevealTimeline(el);
+    activeTimelines.push(tl);
 
     // Hero 區塊內的元素：頁面載入直接播放，不需 ScrollTrigger
     const isInHero = el.closest("#hero") !== null;

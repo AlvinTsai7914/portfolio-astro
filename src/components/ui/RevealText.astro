@@ -20,18 +20,27 @@
 interface Props {
   /** 動畫延遲（秒），用於排列同一 Section 內多個 RevealText 的播放順序 */
   delay?: number;
+  /** 外層 margin-top */
+  mt?: string;
   /** 外層 margin-bottom，取代子元素原本的 margin */
   mb?: string;
+  /** 外層 padding-top，用於與上方元素（如 SectionLabel）的間距 */
+  pt?: string;
 }
 
-const { delay = 0, mb } = Astro.props;
+const { delay = 0, mt, mb, pt } = Astro.props;
+const styleStr = [
+  mt && `margin-top: ${mt}`,
+  pt && `padding-top: ${pt}`,
+  mb && `margin-bottom: ${mb}`,
+].filter(Boolean).join("; ") || undefined;
 ---
 
 <div
   class="reveal-text"
   data-reveal
   data-reveal-delay={delay}
-  style={mb ? `margin-bottom: ${mb}` : undefined}
+  style={styleStr}
 >
   <div class="reveal-text__content">
     <slot />
