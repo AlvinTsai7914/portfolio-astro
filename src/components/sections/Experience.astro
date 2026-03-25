@@ -8,6 +8,7 @@
 // ==========================================================================
 
 import SectionLabel from "../ui/SectionLabel.astro";
+import RevealText from "../ui/RevealText.astro";
 
 interface Props {
   lang?: "zh" | "en";
@@ -51,8 +52,8 @@ const experiences = [
 <section data-theme="dark" class="section" id="experience">
   <div class="grid">
     <div class="grid-full">
-      <SectionLabel text="Experience" />
-      <h2 class="experience__headline">{headline[lang]}</h2>
+      <RevealText delay={0.1}><SectionLabel text="Experience" /></RevealText>
+      <RevealText mb="var(--space-12)"><h2 class="experience__headline">{headline[lang]}</h2></RevealText>
 
       <div class="experience__list">
         {

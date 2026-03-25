@@ -1,0 +1,80 @@
+---
+// ==========================================================================
+// RevealText — 雙色遮罩揭示動畫包裝元件
+//
+// 用法：
+//   <RevealText mb="var(--space-6)"><h2>標題</h2></RevealText>
+//
+// 動畫流程（由 GSAP ScrollTrigger 觸發）：
+//   1. 橘色遮罩從左→右展開
+//   2. 對比色遮罩從左→右展開（與橘色重疊進行）
+//   3. 停頓，此時文字設為可見
+//   4. 對比色遮罩從左→右退場
+//   5. 橘色遮罩從左→右退場（與對比色重疊進行）
+//   → 文字完全揭示
+//
+// 圖層（由下到上）：文字 → 橘色遮罩 → 對比色遮罩
+// 遮罩顏色自動繼承 Section 的 data-theme（--color-brand / --color-foreground）
+// ==========================================================================
+
+interface Props {
+  /** 動畫延遲（秒），用於排列同一 Section 內多個 RevealText 的播放順序 */
+  delay?: number;
+  /** 外層 margin-bottom，取代子元素原本的 margin */
+  mb?: string;
+}
+
+const { delay = 0, mb } = Astro.props;
+---
+
+<div
+  class="reveal-text"
+  data-reveal
+  data-reveal-delay={delay}
+  style={mb ? `margin-bottom: ${mb}` : undefined}
+>
+  <div class="reveal-text__content">
+    <slot />
+  </div>
+  <span class="reveal-text__mask reveal-text__mask--brand" aria-hidden="true"></span>
+  <span class="reveal-text__mask reveal-text__mask--bg" aria-hidden="true"></span>
+</div>
+
+<style lang="scss">
+  .reveal-text {
+    position: relative;
+    overflow: clip;
+    isolation: isolate;
+    display: block;
+    width: fit-content;
+  }
+
+  .reveal-text__content {
+    // 初始隱藏，由 GSAP 在動畫中設為可見
+    opacity: 0;
+
+    // 清除子元素的 margin，避免遮罩範圍擴大
+    // margin 改由 .reveal-text 的 mb prop 控制
+    :global(> *) {
+      margin: 0;
+    }
+  }
+
+  .reveal-text__mask {
+    position: absolute;
+    inset: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    pointer-events: none;
+  }
+
+  .reveal-text__mask--brand {
+    background-color: var(--color-brand);
+    z-index: 1;
+  }
+
+  .reveal-text__mask--bg {
+    background-color: var(--color-foreground);
+    z-index: 2;
+  }
+</style>

@@ -9,6 +9,7 @@
 // ==========================================================================
 
 import SectionLabel from "../ui/SectionLabel.astro";
+import RevealText from "../ui/RevealText.astro";
 
 interface Props {
   lang?: "zh" | "en";
@@ -51,8 +52,8 @@ const links = [
 <section data-theme="light" class="section" id="contact">
   <div class="grid">
     <div class="grid-full contact">
-      <SectionLabel text="Contact" />
-      <h2 class="contact__headline">{t.headline}</h2>
+      <RevealText delay={0.1}><SectionLabel text="Contact" /></RevealText>
+      <RevealText mb="var(--space-4)"><h2 class="contact__headline">{t.headline}</h2></RevealText>
       <p class="contact__subtext">{t.subtext}</p>
 
       <div class="contact__links">

@@ -1,14 +1,16 @@
 ---
 // ==========================================================================
-// Projects Section
-// 來源：Stitch Screen c6291bcb、design-dna.md
+// Projects Section — Sticky Scroll Layout
+// 來源：good-fella.com Featured Work 風格
 //
-// 2x2 卡片 Grid，從 Content Collections 讀取專案資料
+// 左側：CSS sticky sidebar（標題 + 小圖 Nav + 橘色指示器 + View All 按鈕）
+// 右側：可滾動的大圖專案卡片（GSAP ScrollTrigger 視差 + 活躍偵測）
 // data-theme="light"
 // ==========================================================================
 
 import { getCollection } from "astro:content";
 import SectionLabel from "../ui/SectionLabel.astro";
+import RevealText from "../ui/RevealText.astro";
 
 interface Props {
   lang?: "zh" | "en";
@@ -17,7 +19,11 @@ interface Props {
 const { lang = "zh" } = Astro.props;
 
 const headline = { zh: "精選作品", en: "Selected Work" };
-const viewAll = { zh: "查看所有作品 →", en: "View All Projects →" };
+const description = {
+  zh: "每個專案都是從概念到上線的完整實踐，展現設計思維與技術能力的結合。",
+  en: "Each project represents a complete journey from concept to launch, showcasing the fusion of design thinking and technical expertise.",
+};
+const viewAll = { zh: "所有作品", en: "All Projects" };
 
 // 從對應語言的 Collection 讀取專案
 const collectionName = `projects-${lang}` as "projects-zh" | "projects-en";
@@ -25,85 +31,357 @@ const projects = (await getCollection(collectionName))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<section data-theme="light" class="section" id="projects">
-  <div class="grid">
-    <div class="grid-full">
-      <SectionLabel text="Projects" />
-      <h2 class="projects__headline">{headline[lang]}</h2>
+<section data-theme="light" class="section projects-section" id="projects">
+  <!-- 兩欄區塊 -->
+  <div class="projects__wrapper">
+    <div class="grid">
+      <div class="grid-full">
+        <div class="projects__layout">
 
-      <div class="projects__grid">
-        {
-          projects.map((project) => (
-            <a href={`/${lang}/projects/${project.data.slug}`} class="project-card">
-              <div class="project-card__image" />
-              <div class="project-card__info">
-                <div class="project-card__header">
-                  <h4 class="project-card__title">{project.data.title}</h4>
-                  <span
-                    class={`project-card__status project-card__status--${project.data.status}`}
-                  >
-                    <span class="project-card__status-dot" aria-hidden="true" />
-                    {project.data.status === "online" ? "Online" : "Offline"}
-                  </span>
-                </div>
-                <p class="project-card__desc">{project.data.description}</p>
-                <div class="project-card__tags">
-                  {project.data.tags.map((tag: string) => (
-                    <span class="project-card__tag">{tag}</span>
-                  ))}
-                </div>
-              </div>
+          <!-- 左側 Sidebar（標題 + 描述 + 小圖 Nav + 按鈕） -->
+          <div class="projects__sidebar">
+            <div class="projects__sidebar-header">
+              <RevealText delay={0.1}><SectionLabel text="Projects" /></RevealText>
+              <RevealText mb="var(--space-4)"><h2 class="projects__headline">{headline[lang]}</h2></RevealText>
+              <p class="projects__desc">{description[lang]}</p>
+            </div>
+
+            <nav class="projects__nav" aria-label="Project navigation">
+              {projects.map((project, index) => (
+                <button
+                  class={`projects__nav-item ${index === 0 ? "is-active" : ""}`}
+                  data-index={index}
+                  type="button"
+                  aria-label={project.data.title}
+                >
+                  <div class="projects__nav-thumb">
+                    {project.data.cover ? (
+                      <img
+                        src={project.data.cover}
+                        alt={project.data.title}
+                        class="projects__nav-img"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div class="projects__nav-thumb-placeholder" />
+                    )}
+                  </div>
+                </button>
+              ))}
+              <span class="projects__nav-indicator" aria-hidden="true" />
+            </nav>
+
+            <!-- View All 按鈕（與 Hero 聯繫我同樣式） -->
+            <a href={`/${lang}/projects/`} class="projects__view-all">
+              <span class="projects__view-all-inner">
+                <span class="projects__view-all-icon projects__view-all-icon--left" aria-hidden="true">+</span>
+                <span class="projects__view-all-label">{viewAll[lang]}</span>
+                <span class="projects__view-all-icon projects__view-all-icon--right" aria-hidden="true">+</span>
+              </span>
             </a>
-          ))
-        }
+          </div>
+
+          <!-- 右側內容區 -->
+          <div class="projects__content">
+            {projects.map((project, index) => (
+              <article class="projects__item" data-index={index}>
+                <a href={`/${lang}/projects/${project.data.slug}`} class="projects__item-link">
+                  <div class="projects__item-image-wrapper">
+                    <div class="projects__item-image">
+                      {project.data.cover ? (
+                        <img
+                          src={project.data.cover}
+                          alt={project.data.title}
+                          class="projects__item-img"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div class="projects__item-image-placeholder" />
+                      )}
+                    </div>
+                  </div>
+                  <div class="projects__item-info">
+                    <div class="projects__item-header">
+                      <h3 class="projects__item-title">{project.data.title}</h3>
+                      <span class={`projects__item-status projects__item-status--${project.data.status}`}>
+                        <span class="projects__item-status-dot" aria-hidden="true" />
+                        {project.data.status === "online" ? "Online" : "Offline"}
+                      </span>
+                    </div>
+                    <div class="projects__item-tags">
+                      {project.data.tags.map((tag: string) => (
+                        <span class="projects__item-tag">{tag}</span>
+                      ))}
+                    </div>
+                    <p class="projects__item-desc">{project.data.description}</p>
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <style lang="scss">
+  // ==========================================================================
+  // Local Tokens
+  // ==========================================================================
+  $thumb-nav-width: 128px;
+  $indicator-size: 12px;
+  $parallax-offset: 120px;
+  $item-gap: var(--space-16);
+  $btn-icon-size: 40px;
+  $btn-gap: 6px;
+  $btn-transition: transform 0.7s cubic-bezier(0.83, 0, 0.17, 1);
+
+  // ==========================================================================
+  // Section
+  // ==========================================================================
+  .projects-section {
+    padding-bottom: var(--section-padding);
+  }
+
   .projects__headline {
-    margin-bottom: var(--space-12);
+    margin-bottom: var(--space-4);
+    white-space: nowrap;
   }
 
-  .projects__grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-8);
+  .projects__desc {
+    font-size: var(--text-body-lg);
+    color: var(--color-foreground-muted);
+  }
+
+  // ==========================================================================
+  // Pin Wrapper
+  // ==========================================================================
+  .projects__wrapper {
+    min-height: 100vh;
+  }
+
+  // ==========================================================================
+  // 兩欄布局 — 左 3 : 空白 1 : 右 8（12 欄中的比例）
+  // ==========================================================================
+  .projects__layout {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  // ==========================================================================
+  // 左側 Sidebar（佔 4/12，其中內容 3 欄 + 間距 1 欄）
+  // CSS sticky：右側內容撐高容器，左側自然 sticky 到滾完為止
+  // ==========================================================================
+  .projects__sidebar {
+    flex: 0 0 calc(4 / 12 * 100%);
+    padding-right: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: sticky;
+    top: var(--site-header-height);
+    align-self: flex-start;
+    min-height: calc(100dvh - var(--site-header-height));
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-8);
+    overflow-y: auto;
   }
 
   // --------------------------------------------------------------------------
-  // Project Card
+  // 小圖 Nav
   // --------------------------------------------------------------------------
-  .project-card {
+  .projects__nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: relative;
+  }
+
+  .projects__nav-item {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .projects__nav-thumb {
+    width: $thumb-nav-width;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-4);
+    overflow: hidden;
+    background-color: var(--color-surface);
+    opacity: 0.4;
+    transition: opacity 0.3s var(--transition-timing);
+  }
+
+  .projects__nav-item.is-active .projects__nav-thumb {
+    opacity: 1;
+  }
+
+  .projects__nav-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-surface);
+  }
+
+  // --------------------------------------------------------------------------
+  // 橘色指示器（單一元素，用 translateY 滑動至對應小圖）
+  // --------------------------------------------------------------------------
+  .projects__nav-indicator {
+    position: absolute;
+    left: calc($thumb-nav-width + var(--space-3));
+    top: 0;
+    width: $indicator-size;
+    height: $indicator-size;
+    background-color: var(--color-brand);
     display: block;
-    transition: opacity var(--transition-duration) var(--transition-timing);
+    pointer-events: none;
+    z-index: 10;
+    transition: transform 0.5s cubic-bezier(0.34, -0.6, 0.64, 1);
+  }
 
-    &:hover {
-      opacity: 0.8;
+  // --------------------------------------------------------------------------
+  // View All 按鈕（複製 Hero 聯繫我按鈕樣式）
+  // --------------------------------------------------------------------------
+  .projects__view-all {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+  }
+
+  .projects__view-all-inner {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    gap: $btn-gap;
+  }
+
+  .projects__view-all-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: $btn-icon-size;
+    padding-inline: var(--space-6);
+    background-color: var(--color-brand);
+    color: var(--color-white);
+    transition: $btn-transition;
+    transform: translateX(calc(-1 * ($btn-icon-size + $btn-gap)));
+  }
+
+  .projects__view-all-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: $btn-icon-size;
+    height: $btn-icon-size;
+    background-color: var(--color-brand);
+    color: var(--color-white);
+    transition: $btn-transition;
+    font-size: var(--text-body);
+  }
+
+  .projects__view-all-icon--left {
+    transform: rotate(-45deg) scale(0);
+  }
+
+  .projects__view-all-icon--right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: rotate(0deg) scale(1);
+  }
+
+  .projects__view-all:hover .projects__view-all-label {
+    transform: translateX(0);
+  }
+
+  .projects__view-all:hover .projects__view-all-icon--left {
+    transform: rotate(0deg) scale(1);
+  }
+
+  .projects__view-all:hover .projects__view-all-icon--right {
+    transform: rotate(-45deg) scale(0);
+  }
+
+  // ==========================================================================
+  // 右側內容區
+  // ==========================================================================
+  .projects__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .projects__item {
+    margin-bottom: $item-gap;
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 
-  .project-card__image {
+  .projects__item-link {
+    display: block;
+  }
+
+  // 外框：固定尺寸、圓角、裁切溢出
+  .projects__item-image-wrapper {
     width: 100%;
-    aspect-ratio: 16 / 10;
-    background-color: var(--color-surface);
-    border-radius: var(--radius-12);
+    aspect-ratio: 960 / 600;
+    overflow: hidden;
     margin-bottom: var(--space-4);
   }
 
-  .project-card__header {
+  // 內層圖片容器：hover 放大，比外框高以容納視差
+  .projects__item-image {
+    width: 100%;
+    height: calc(100% + $parallax-offset * 2);
+    margin-top: calc($parallax-offset * -1);
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+
+  .projects__item-link:hover .projects__item-image {
+    transform: scale(1.05);
+  }
+
+  .projects__item-image :global(img),
+  .projects__item-image-placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: var(--color-surface);
+    will-change: transform;
+  }
+
+  .projects__nav-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  // --------------------------------------------------------------------------
+  // 專案資訊
+  // --------------------------------------------------------------------------
+  .projects__item-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: var(--space-2);
   }
 
-  .project-card__title {
+  .projects__item-title {
     font-size: var(--text-h4);
   }
 
-  .project-card__status {
+  .projects__item-status {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
@@ -112,34 +390,29 @@ const projects = (await getCollection(collectionName))
     color: var(--color-foreground-muted);
   }
 
-  .project-card__status-dot {
+  .projects__item-status-dot {
     width: 6px;
     height: 6px;
     border-radius: var(--radius-full);
     display: inline-block;
   }
 
-  .project-card__status--online .project-card__status-dot {
+  .projects__item-status--online .projects__item-status-dot {
     background-color: #22c55e;
   }
 
-  .project-card__status--offline .project-card__status-dot {
+  .projects__item-status--offline .projects__item-status-dot {
     background-color: var(--color-foreground-muted);
   }
 
-  .project-card__desc {
-    font-size: var(--text-body);
-    color: var(--color-foreground-muted);
-    margin-bottom: var(--space-3);
-  }
-
-  .project-card__tags {
+  .projects__item-tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
+    margin-bottom: var(--space-3);
   }
 
-  .project-card__tag {
+  .projects__item-tag {
     font-family: var(--font-mono);
     font-size: var(--text-body-sm);
     padding: var(--space-1) var(--space-3);
@@ -148,9 +421,146 @@ const projects = (await getCollection(collectionName))
     color: var(--color-foreground-muted);
   }
 
+  .projects__item-desc {
+    font-size: var(--text-body);
+    color: var(--color-foreground-muted);
+    line-height: 1.5;
+  }
+
+  // ==========================================================================
+  // Responsive — 手機版
+  // ==========================================================================
   @media (max-width: 767px) {
-    .projects__grid {
-      grid-template-columns: 1fr;
+    .projects-section {
+      padding-bottom: var(--section-padding);
     }
+
+    .projects__sidebar {
+      display: none;
+    }
+
+    .projects__layout {
+      flex-direction: column;
+      min-height: auto;
+    }
+
+    .projects__wrapper {
+      min-height: auto;
+    }
+
   }
 </style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // 用 AbortController 統一清理 event listener
+  let abortController: AbortController | null = null;
+
+  function initProjectsScroll() {
+    // 清除舊的 ScrollTrigger + event listener
+    ScrollTrigger.getAll()
+      .filter((st) => st.vars.id?.startsWith("projects"))
+      .forEach((st) => st.kill());
+    abortController?.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    const items = document.querySelectorAll<HTMLElement>(".projects__item");
+    const navItems = document.querySelectorAll<HTMLElement>(".projects__nav-item");
+    const indicator = document.querySelector<HTMLElement>(".projects__nav-indicator");
+
+    if (items.length === 0) return;
+
+    // 手機版不啟用
+    if (window.innerWidth < 768) return;
+
+    // ------------------------------------------------------------------
+    // 橘色指示器移動
+    // ------------------------------------------------------------------
+    let currentIndex = -1;
+
+    function setActiveNav(index: number) {
+      if (index === currentIndex) return;
+      currentIndex = index;
+
+      navItems.forEach((navItem, i) => {
+        navItem.classList.toggle("is-active", i === index);
+      });
+
+      if (!indicator) return;
+      const targetThumb = navItems[index];
+      if (!targetThumb) return;
+
+      const thumbCenter = targetThumb.offsetTop + targetThumb.offsetHeight / 2;
+      const offsetY = thumbCenter - indicator.offsetHeight / 2;
+      const rotation = index * 90;
+      indicator.style.transform = `translateY(${offsetY}px) rotate(${rotation}deg)`;
+    }
+
+    // ------------------------------------------------------------------
+    // 每個專案：ScrollTrigger 偵測活躍狀態 + 視差
+    // start: 專案頂部碰到視窗底部 → end: 專案底部碰到視窗頂部
+    // ------------------------------------------------------------------
+    items.forEach((item, index) => {
+      const img = item.querySelector<HTMLElement>(".projects__item-image img") ||
+        item.querySelector<HTMLElement>(".projects__item-image-placeholder");
+
+      // 視差動畫：圖片從 y: 120 → y: -120
+      if (img) {
+        gsap.fromTo(img,
+          { y: -120 },
+          {
+            y: 120,
+            ease: "none",
+            scrollTrigger: {
+              id: `projects-parallax-${index}`,
+              trigger: item,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            },
+          }
+        );
+      }
+
+      // 活躍狀態偵測：大圖進入視窗中央範圍時切換指示器
+      ScrollTrigger.create({
+        id: `projects-active-${index}`,
+        trigger: item,
+        start: "top center",
+        end: "bottom center",
+        onEnter: () => setActiveNav(index),
+        onEnterBack: () => setActiveNav(index),
+      });
+    });
+
+    // 初始定位指示器
+    setActiveNav(0);
+
+    // ------------------------------------------------------------------
+    // 小圖點擊 → 滾動到對應大圖
+    // ------------------------------------------------------------------
+    navItems.forEach((navItem, index) => {
+      navItem.addEventListener("click", () => {
+        const targetItem = items[index];
+        if (!targetItem) return;
+
+        const itemRect = targetItem.getBoundingClientRect();
+        const itemCenter = itemRect.top + itemRect.height / 2;
+        const viewportCenter = window.innerHeight / 2;
+        const scrollTarget = window.scrollY + (itemCenter - viewportCenter);
+
+        window.scrollTo({ top: scrollTarget, behavior: "smooth" });
+      }, { signal });
+    });
+
+    ScrollTrigger.refresh();
+  }
+
+  initProjectsScroll();
+  document.addEventListener("astro:page-load", initProjectsScroll);
+</script>

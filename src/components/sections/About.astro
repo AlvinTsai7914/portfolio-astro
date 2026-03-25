@@ -8,6 +8,7 @@
 // ==========================================================================
 
 import SectionLabel from "../ui/SectionLabel.astro";
+import RevealText from "../ui/RevealText.astro";
 
 interface Props {
   lang?: "zh" | "en";
@@ -52,8 +53,8 @@ const t = content[lang];
         <div class="about__portrait-placeholder"></div>
       </div>
       <div class="about__content">
-        <SectionLabel text="About" />
-        <h2 class="about__headline">{t.headline}</h2>
+        <RevealText delay={0.1}><SectionLabel text="About" /></RevealText>
+        <RevealText mb="var(--space-6)"><h2 class="about__headline">{t.headline}</h2></RevealText>
         {t.paragraphs.map((p) => <p class="about__text">{p}</p>)}
         <div class="about__stats">
           {

@@ -8,6 +8,7 @@
 // ==========================================================================
 
 import SectionLabel from "../ui/SectionLabel.astro";
+import RevealText from "../ui/RevealText.astro";
 
 interface Props {
   lang?: "zh" | "en";
@@ -34,13 +35,23 @@ const t = content[lang];
 <section data-theme="dark" class="hero section" id="hero">
   <div class="grid">
     <div class="grid-full hero__content">
-      <SectionLabel text="Hero" />
-      <h1 class="hero__title">Frontend<br />Developer</h1>
+      <RevealText delay={0.1}><SectionLabel text="Hero" /></RevealText>
+      <RevealText><h1 class="hero__title">Frontend</h1></RevealText>
+      <RevealText delay={0.1} mb="var(--space-6)"><h1 class="hero__title">Developer</h1></RevealText>
       <p class="hero__name">YourName</p>
       <p class="hero__tagline">{t.tagline}</p>
       <div class="hero__cta">
-        <a href="#projects" class="hero__btn hero__btn--primary">{t.ctaProjects}</a>
-        <a href="#contact" class="hero__btn hero__btn--outline">{t.ctaContact}</a>
+        <a href="#contact" class="hero__btn hero__btn--primary">
+          <span class="hero__btn-inner">
+            <span class="hero__btn-icon hero__btn-icon--left" aria-hidden="true">+</span>
+            <span class="hero__btn-label">{t.ctaContact}</span>
+            <span class="hero__btn-icon hero__btn-icon--right" aria-hidden="true">+</span>
+          </span>
+        </a>
+        <a href="#projects" class="hero__btn hero__btn--link" data-underline-dir>
+          <span class="hero__btn-text">{t.ctaProjects}</span>
+          <span class="hero__btn-underline" aria-hidden="true"></span>
+        </a>
       </div>
     </div>
   </div>
@@ -83,6 +94,7 @@ const t = content[lang];
 
   .hero__cta {
     display: flex;
+    align-items: center;
     gap: var(--space-4);
   }
 
@@ -93,30 +105,163 @@ const t = content[lang];
     font-family: var(--font-mono);
     font-size: var(--text-body-sm);
     font-weight: var(--font-weight-medium);
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-8);
     transition:
       opacity var(--transition-duration) var(--transition-timing),
       background-color var(--transition-duration) var(--transition-timing);
 
-    &:hover {
-      opacity: 0.85;
-    }
   }
 
   .hero__btn--primary {
-    background-color: var(--color-brand);
+    padding: 0;
+    background-color: transparent;
     color: var(--color-white);
   }
 
-  .hero__btn--outline {
-    border: 1px solid var(--color-foreground);
-    color: var(--color-foreground);
+  // --------------------------------------------------------------------------
+  // Primary Button — Local tokens
+  // --------------------------------------------------------------------------
+  $btn-icon-size: 40px;
+  $btn-gap: 6px;
+  $btn-transition: transform 0.7s cubic-bezier(0.83, 0, 0.17, 1);
 
-    &:hover {
-      background-color: var(--color-foreground);
-      color: var(--color-background);
-      opacity: 1;
-    }
+  // --------------------------------------------------------------------------
+  // Primary Button — Inner (第二層)
+  // --------------------------------------------------------------------------
+  .hero__btn-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    gap: $btn-gap;
+  }
+
+  // --------------------------------------------------------------------------
+  // Primary Button — Label & Icon (第三層，各自有背景色)
+  // --------------------------------------------------------------------------
+  .hero__btn-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: $btn-icon-size;
+    padding-inline: var(--space-6);
+    background-color: var(--color-brand);
+    transition: $btn-transition;
+    transform: translateX(calc(-1 * ($btn-icon-size + $btn-gap)));
+  }
+
+  .hero__btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: $btn-icon-size;
+    height: $btn-icon-size;
+    background-color: var(--color-brand);
+    transition: $btn-transition;
+    font-size: calc(var(--text-body) * 1.2);
+  }
+
+  .hero__btn-icon--left {
+    transform: rotate(-45deg) scale(0);
+  }
+
+  .hero__btn-icon--right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: rotate(0deg) scale(1);
+  }
+  .hero__btn--primary:hover .hero__btn-label {
+    transform: translateX(0);
+  }
+  .hero__btn--primary:hover .hero__btn-icon--left {
+    transform: rotate(0deg) scale(1);
+  }
+
+  .hero__btn--primary:hover .hero__btn-icon--right {
+    transform: rotate(-45deg) scale(0);
+  }
+
+  // --------------------------------------------------------------------------
+  // Link Button — 單條底線 + JS 控制方向
+  // --------------------------------------------------------------------------
+  $link-transition-duration: 0.7s;
+  $link-timing: cubic-bezier(0.625, 0.05, 0, 1);
+
+  .hero__btn--link {
+    position: relative;
+    line-height: 1.5;
+    color: var(--color-foreground);
+  }
+
+  .hero__btn-text {
+    display: inline-block;
+  }
+
+  .hero__btn-underline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(1);
+    transform-origin: left;
+    transition: transform $link-transition-duration $link-timing;
   }
 </style>
+
+<script>
+  // --------------------------------------------------------------------------
+  // Link Underline — hover in/out 皆從左往右
+  // mouseenter: 底線從左縮回（origin-left, scaleX 1→0）
+  //             transitionend 後從左展開（origin-left, scaleX 0→1）
+  // mouseleave: 同樣方向重複一次
+  // --------------------------------------------------------------------------
+  function initUnderlineLinks() {
+    document.querySelectorAll<HTMLElement>("[data-underline-dir]").forEach((link) => {
+      const line = link.querySelector<HTMLElement>(".hero__btn-underline");
+      if (!line) return;
+
+      let isAnimating = false;
+
+      function animateOut() {
+        isAnimating = true;
+        line!.style.transformOrigin = "right";
+        line!.style.transform = "scaleX(0)";
+      }
+
+      function onShrinkEnd(e: TransitionEvent) {
+        if (e.propertyName !== "transform") return;
+        line!.removeEventListener("transitionend", onShrinkEnd);
+
+        // 關閉 transition，瞬間移到左側起點
+        line!.style.transition = "none";
+        line!.style.transformOrigin = "left";
+        line!.style.transform = "scaleX(0)";
+
+        // 強制 reflow 後重新啟用 transition，從左展開
+        void line!.offsetWidth;
+        line!.style.transition = "";
+        line!.style.transform = "scaleX(1)";
+
+        isAnimating = false;
+      }
+
+      link.addEventListener("mouseenter", () => {
+        if (isAnimating) return;
+        line!.addEventListener("transitionend", onShrinkEnd);
+        animateOut();
+      });
+
+      link.addEventListener("mouseleave", () => {
+        if (isAnimating) return;
+        line!.addEventListener("transitionend", onShrinkEnd);
+        animateOut();
+      });
+    });
+  }
+
+  initUnderlineLinks();
+  document.addEventListener("astro:page-load", initUnderlineLinks);
+</script>
