@@ -54,7 +54,7 @@ const links = [
     <div class="grid-full contact">
       <RevealText delay={0.1}><SectionLabel text="Contact" /></RevealText>
       <RevealText pt="var(--space-3)" mb="var(--space-4)"><h2 class="contact__headline">{t.headline}</h2></RevealText>
-      <p class="contact__subtext">{t.subtext}</p>
+      <p class="contact__subtext" data-fade-up data-fade-trigger=".contact">{t.subtext}</p>
 
       <div class="contact__links">
         {
@@ -64,6 +64,9 @@ const links = [
               target={link.href.startsWith("http") ? "_blank" : undefined}
               rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
               class="contact__link"
+              data-fade-up
+              data-fade-group="contact-links"
+              data-fade-trigger=".contact"
             >
               {link.label}
               <span class="contact__link-arrow" aria-hidden="true">↗</span>
@@ -85,6 +88,7 @@ const links = [
     color: var(--color-foreground-muted);
     max-width: var(--container-2xl);
     margin-bottom: var(--space-12);
+    opacity: 0;
   }
 
   // --------------------------------------------------------------------------
@@ -103,6 +107,7 @@ const links = [
     font-size: var(--text-h5);
     font-weight: var(--font-weight-medium);
     color: var(--color-foreground);
+    opacity: 0;
     transition: color var(--transition-duration) var(--transition-timing);
 
     &:hover {

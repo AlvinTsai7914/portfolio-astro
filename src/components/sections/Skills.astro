@@ -47,7 +47,7 @@ const categories = [
       <div class="skills__grid">
         {
           categories.map((cat) => (
-            <div class="skills__category">
+            <div class="skills__category" data-fade-up data-fade-group="skills-categories" data-fade-trigger=".skills__grid">
               <h5 class="skills__category-name">
                 <span class="skills__category-marker" aria-hidden="true">■</span>
                 {cat.name[lang]}
@@ -77,6 +77,10 @@ const categories = [
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: var(--space-12);
+  }
+
+  .skills__category {
+    opacity: 0;
   }
 
   .skills__category-name {

@@ -58,7 +58,7 @@ const experiences = [
       <div class="experience__list">
         {
           experiences.map((exp) => (
-            <article class="experience__entry">
+            <article class="experience__entry" data-fade-up data-fade-group="experience-entries" data-fade-trigger=".experience__list">
               <span class="experience__period">{exp.period}</span>
               <div class="experience__role">
                 <h4 class="experience__title">{exp.title[lang]}</h4>
@@ -92,6 +92,7 @@ const experiences = [
     gap: var(--space-8);
     padding-block: var(--space-8);
     border-top: 1px solid var(--color-border-muted);
+    opacity: 0;
 
     &:last-child {
       border-bottom: 1px solid var(--color-border-muted);
