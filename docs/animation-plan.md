@@ -72,9 +72,7 @@
 
 ## 3. 滾動觸發動畫（fade-up + stagger）
 
-**腳本**：
-- `src/scripts/hero-entrance.ts`（Hero 專用，頁面載入播放）
-- `src/scripts/scroll-fade.ts`（通用 ScrollTrigger，`data-fade-*` attribute 驅動）
+**腳本**：`src/scripts/scroll-fade.ts`（通用 `data-fade-*` attribute 驅動，支援 ScrollTrigger 觸發和 `data-fade-immediate` 頁面載入直接播放）
 
 ### 動畫參數（參考 good-fella.com）
 
@@ -97,6 +95,7 @@
 | `data-fade-duration` | 動畫時長 | `0.5` |
 | `data-fade-stagger` | 群組內間隔 | `0.15` |
 | `data-fade-y` | Y 位移（px 或 %） | `"100%"` |
+| `data-fade-immediate` | 頁面載入直接播放，不等 ScrollTrigger | — |
 
 ### 實作清單
 
