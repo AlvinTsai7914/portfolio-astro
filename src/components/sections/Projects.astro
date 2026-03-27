@@ -85,7 +85,7 @@ const projects = (await getCollection(collectionName))
           <div class="projects__content">
             {projects.map((project, index) => (
               <article class="projects__item" data-index={index}>
-                <a href={`/${lang}/projects/${project.data.slug}`} class="projects__item-link">
+                <a href={`/${lang}/projects/${project.data.slug}`} class="projects__item-link" data-cursor-text={lang === "zh" ? "查看作品" : "VIEW PORJECT"}>
                   <div class="projects__item-image-wrapper">
                     <div class="projects__item-image">
                       {project.data.cover ? (

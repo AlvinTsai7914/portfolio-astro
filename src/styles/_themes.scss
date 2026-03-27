@@ -70,6 +70,33 @@
 }
 
 // --------------------------------------------------------------------------
+// Custom Cursor — 情境式 Hover 徽章
+// 來源：src/scripts/custom-cursor.ts
+// --------------------------------------------------------------------------
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.custom-cursor__text {
+  display: inline-block;
+  padding: 0.5rem;
+  background-color: #fb460d;
+  color: #141314;
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// --------------------------------------------------------------------------
 // Text Selection
 // 套用於所有帶 data-theme 的區塊
 // --------------------------------------------------------------------------
