@@ -5,7 +5,7 @@
 //
 // 大標題 + 副標 + 三個聯繫連結（Email / LinkedIn / GitHub）
 // 不做表單（CLAUDE.md 規劃：連結 only）
-// data-theme="light"
+// data-theme="dark"
 // ==========================================================================
 
 import SectionLabel from "../ui/SectionLabel.astro";
@@ -49,7 +49,7 @@ const links = [
 ];
 ---
 
-<section data-theme="light" class="section" id="contact">
+<section data-theme="dark" class="section" id="contact">
   <div class="grid">
     <div class="grid-full contact">
       <RevealText delay={0.1}><SectionLabel text="Contact" /></RevealText>
@@ -64,11 +64,8 @@ const links = [
               target={link.href.startsWith("http") ? "_blank" : undefined}
               rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
               class="contact__link"
-              data-fade-up
-              data-fade-group="contact-links"
-              data-fade-trigger=".contact"
             >
-              {link.label}
+              <span data-scramble="scroll hover" data-scramble-group="contact-links" data-scramble-trigger=".contact" data-scramble-target=".contact__link" data-scramble-duration="0.4" data-scramble-hold="0.2">{link.label}</span>
               <span class="contact__link-arrow" aria-hidden="true">↗</span>
             </a>
           ))
@@ -107,7 +104,6 @@ const links = [
     font-size: var(--text-h5);
     font-weight: var(--font-weight-medium);
     color: var(--color-foreground);
-    opacity: 0;
     transition: color var(--transition-duration) var(--transition-timing);
 
     &:hover {

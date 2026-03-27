@@ -6,12 +6,24 @@
 
 interface Props {
   text: string;
+  scramble?: "immediate" | "scroll" | "hover";
+  scrambleDelay?: number;
+  scrambleDuration?: number;
+  scrambleHold?: number;
 }
 
-const { text } = Astro.props;
+const { text, scramble, scrambleDelay, scrambleDuration, scrambleHold } = Astro.props;
 ---
 
-<span class="section-label">// {text}</span>
+<span
+  class="section-label"
+  {...scramble ? {
+    "data-scramble": scramble,
+    ...(scrambleDelay ? { "data-scramble-delay": String(scrambleDelay) } : {}),
+    ...(scrambleDuration ? { "data-scramble-duration": String(scrambleDuration) } : {}),
+    ...(scrambleHold ? { "data-scramble-hold": String(scrambleHold) } : {}),
+  } : {}}
+>// {text}</span>
 
 <style lang="scss">
   .section-label {

@@ -46,7 +46,7 @@ const t = content[lang];
         <a href="#contact" class="hero__btn hero__btn--primary">
           <span class="hero__btn-inner">
             <span class="hero__btn-icon hero__btn-icon--left" aria-hidden="true">+</span>
-            <span class="hero__btn-label">{t.ctaContact}</span>
+            <span class="hero__btn-label" data-scramble="hover" data-scramble-target=".hero__btn--primary" data-scramble-delay="0.2">{t.ctaContact}</span>
             <span class="hero__btn-icon hero__btn-icon--right" aria-hidden="true">+</span>
           </span>
         </a>
@@ -120,7 +120,6 @@ const t = content[lang];
   .hero__btn--primary {
     padding: 0;
     background-color: transparent;
-    color: var(--color-white);
   }
 
   // --------------------------------------------------------------------------

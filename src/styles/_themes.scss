@@ -49,6 +49,27 @@
 }
 
 // --------------------------------------------------------------------------
+// Text Scramble — 亂碼字元品牌色
+// 來源：src/scripts/text-scramble.ts
+// --------------------------------------------------------------------------
+.scramble-brand {
+  color: var(--color-brand);
+}
+
+// 橘色按鈕：文字與 + 號黑色，亂碼白色（不隨 data-theme 變化）
+.hero__btn-label,
+.hero__btn-icon,
+.projects__view-all-label,
+.projects__view-all-icon {
+  color: #141314;
+}
+
+.hero__btn-label .scramble-brand,
+.projects__view-all-label .scramble-brand {
+  color: #eee;
+}
+
+// --------------------------------------------------------------------------
 // Text Selection
 // 套用於所有帶 data-theme 的區塊
 // --------------------------------------------------------------------------

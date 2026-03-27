@@ -4,7 +4,7 @@
 // 來源：Stitch Screen 1e9f00ca、design-dna.md 第 12 節（修正紀錄）
 //
 // 分類 Grid + pill 標籤（正方形標記 ■）
-// data-theme="dark"
+// data-theme="light"
 // ==========================================================================
 
 import SectionLabel from "../ui/SectionLabel.astro";
@@ -38,7 +38,7 @@ const categories = [
 ];
 ---
 
-<section data-theme="dark" class="section" id="skills">
+<section data-theme="light" class="section" id="skills">
   <div class="grid">
     <div class="grid-full">
       <RevealText delay={0.1}><SectionLabel text="Skills" /></RevealText>
@@ -81,6 +81,10 @@ const categories = [
 
   .skills__category {
     opacity: 0;
+    background-color: #141314;
+    color: #eee;
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
   }
 
   .skills__category-name {
@@ -111,9 +115,9 @@ const categories = [
     align-items: center;
     font-family: var(--font-mono);
     font-size: var(--text-body-sm);
-    color: var(--color-foreground);
+    color: #eee;
     padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(238, 238, 238, 0.102);
     border-radius: var(--radius-full);
   }
 

@@ -5,7 +5,7 @@
 //
 // 左側：CSS sticky sidebar（標題 + 小圖 Nav + 橘色指示器 + View All 按鈕）
 // 右側：可滾動的大圖專案卡片（GSAP ScrollTrigger 視差 + 活躍偵測）
-// data-theme="light"
+// data-theme="dark"
 // ==========================================================================
 
 import { getCollection } from "astro:content";
@@ -31,7 +31,7 @@ const projects = (await getCollection(collectionName))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<section data-theme="light" class="section projects-section" id="projects">
+<section data-theme="dark" class="section projects-section" id="projects">
   <!-- 兩欄區塊 -->
   <div class="projects__wrapper">
     <div class="grid">
@@ -75,7 +75,7 @@ const projects = (await getCollection(collectionName))
             <a href={`/${lang}/projects/`} class="projects__view-all">
               <span class="projects__view-all-inner">
                 <span class="projects__view-all-icon projects__view-all-icon--left" aria-hidden="true">+</span>
-                <span class="projects__view-all-label">{viewAll[lang]}</span>
+                <span class="projects__view-all-label" data-scramble="hover" data-scramble-target=".projects__view-all" data-scramble-delay="0.2">{viewAll[lang]}</span>
                 <span class="projects__view-all-icon projects__view-all-icon--right" aria-hidden="true">+</span>
               </span>
             </a>
@@ -272,7 +272,6 @@ const projects = (await getCollection(collectionName))
     height: $btn-icon-size;
     padding-inline: var(--space-6);
     background-color: var(--color-brand);
-    color: var(--color-white);
     transition: $btn-transition;
     transform: translateX(calc(-1 * ($btn-icon-size + $btn-gap)));
   }
@@ -284,7 +283,6 @@ const projects = (await getCollection(collectionName))
     width: $btn-icon-size;
     height: $btn-icon-size;
     background-color: var(--color-brand);
-    color: var(--color-white);
     transition: $btn-transition;
     font-size: var(--text-body);
   }
