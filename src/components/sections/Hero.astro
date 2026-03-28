@@ -33,6 +33,9 @@ const t = content[lang];
 ---
 
 <section data-theme="dark" class="hero section" id="hero">
+  <!-- ASCII 視覺效果（桌面版） -->
+  <div class="hero__ascii" id="hero-ascii"></div>
+  <img src="/images/hero/hero.png" class="hero__ascii-fallback" id="hero-ascii-fallback" alt="" />
   <div class="grid">
     <div class="grid-full hero__content">
       <RevealText delay={0.2}><SectionLabel text="Hero" /></RevealText>
@@ -65,9 +68,36 @@ const t = content[lang];
     display: flex;
     align-items: center;
     padding-top: var(--site-header-height);
+    position: relative;
+    overflow: hidden;
+  }
+
+  // ASCII 視覺效果容器（絕對定位，文字內容疊在上方）
+  .hero__ascii {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    :global(canvas) {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  }
+
+  .hero__ascii-fallback {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 0;
   }
 
   .hero__content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
   }
