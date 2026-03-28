@@ -17,18 +17,15 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { prefersReducedMotion } from "../utils/device";
 
 gsap.registerPlugin(ScrollTrigger);
 
 // good-fella.com 同款字元集（GSAP ScrambleTextPlugin 預設）
 const DEFAULT_CHARS = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
 const DEFAULT_DURATION = 0.3;
-const SCRAMBLE_FPS = 30; // 亂碼循環更新頻率
-const BRAND_CLASS = "scramble-brand"; // 亂碼字元套用的 CSS class
-
-// 偵測 prefers-reduced-motion
-const prefersReducedMotion = (): boolean =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SCRAMBLE_FPS = 30;
+const BRAND_CLASS = "scramble-brand";
 
 // 取得隨機字元
 function randomChar(chars: string): string {

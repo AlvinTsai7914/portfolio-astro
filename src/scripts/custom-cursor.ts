@@ -15,6 +15,7 @@
 // ==========================================================================
 
 import { gsap } from "gsap";
+import { isTouchDevice, prefersReducedMotion } from "../utils/device";
 
 // --------------------------------------------------------------------------
 // Constants
@@ -28,23 +29,6 @@ const DISAPPEAR_EASE = "power2.inOut";
 const MAX_ROTATION = 35;
 const ROTATION_DECAY = 0.92;
 const VELOCITY_SENSITIVITY = 0.15;
-
-// --------------------------------------------------------------------------
-// Touch detection
-// --------------------------------------------------------------------------
-function isTouchDevice(): boolean {
-  return (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia("(hover: none)").matches
-  );
-}
-
-// --------------------------------------------------------------------------
-// Reduced motion
-// --------------------------------------------------------------------------
-const prefersReducedMotion = (): boolean =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // --------------------------------------------------------------------------
 // Init / Cleanup

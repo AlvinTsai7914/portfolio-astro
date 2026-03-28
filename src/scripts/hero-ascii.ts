@@ -11,6 +11,7 @@
 
 import * as THREE from "three";
 import { gsap } from "gsap";
+import { isTouchDevice, prefersReducedMotion } from "../utils/device";
 import depthVert from "../shaders/depth-parallax.vert.glsl?raw";
 import depthFrag from "../shaders/depth-parallax.frag.glsl?raw";
 import asciiVert from "../shaders/ascii.vert.glsl?raw";
@@ -34,17 +35,6 @@ const LAYER1_DURATION = 4;
 const LAYER2_DELAY = 2;   // 法杖在人物揭示中段開始出現
 const LAYER2_DURATION = 0.8;
 const ENTRANCE_EASE = "power2.out";
-
-// --------------------------------------------------------------------------
-// Touch detection
-// --------------------------------------------------------------------------
-function isTouchDevice(): boolean {
-  return (
-    "ontouchstart" in window ||
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia("(hover: none)").matches
-  );
-}
 
 // --------------------------------------------------------------------------
 // 字元 Sprite Sheet
@@ -262,7 +252,10 @@ function initHeroAscii() {
   // 載入 4 張 texture
   // --------------------------------------------------------------------------
   const loader = new THREE.TextureLoader();
-  const load = (path: string) => new Promise<THREE.Texture>((resolve) => loader.load(path, resolve));
+  const load = (path: string) =>
+    new Promise<THREE.Texture>((resolve, reject) =>
+      loader.load(path, resolve, undefined, () => reject(new Error(`Failed to load: ${path}`))),
+    );
 
   Promise.all([
     load("/images/hero/frieren.png"),
@@ -292,9 +285,24 @@ function initHeroAscii() {
       { signal },
     );
 
-    // Render loop（三 pass）
+    // Render loop（三 pass）— 只在 hero 可見時渲染
+    let isVisible = true;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible && rafId === null) animate();
+      },
+      { threshold: 0 },
+    );
+    observer.observe(container);
+    signal.addEventListener("abort", () => observer.disconnect());
+
     function animate() {
-      if (!glRenderer) return;
+      if (!glRenderer || !isVisible) {
+        rafId = null;
+        return;
+      }
       rafId = requestAnimationFrame(animate);
 
       currentMouse.x += (targetMouse.x - currentMouse.x) * MOUSE_LERP;
@@ -323,7 +331,7 @@ function initHeroAscii() {
     animate();
 
     // 入場動畫
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
 
     if (reduced) {
       asciiUniforms.uReveal1.value = 1;
@@ -377,6 +385,11 @@ function initHeroAscii() {
     }
 
     window.addEventListener("resize", onResize, { signal });
+  }).catch(() => {
+    // Texture 載入失敗 → 顯示 fallback
+    const fallback = document.getElementById("hero-ascii-fallback");
+    if (fallback) fallback.style.display = "block";
+    if (container) container.style.display = "none";
   });
 }
 
