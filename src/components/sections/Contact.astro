@@ -3,8 +3,8 @@
 // Contact Section
 // 來源：Stitch Screen 84213142、design-dna.md
 //
-// 大標題 + 副標 + 三個聯繫連結（Email / LinkedIn / GitHub）
-// 不做表單（CLAUDE.md 規劃：連結 only）
+// 左側：大標題 + 副標 + 三個聯繫連結
+// 右側：ASCII 視覺效果（frieren-group 4 圖層）
 // data-theme="dark"
 // ==========================================================================
 
@@ -49,12 +49,13 @@ const links = [
 ];
 ---
 
-<section data-theme="dark" class="section" id="contact">
+<section data-theme="dark" class="" id="contact">
   <div class="grid">
-    <div class="grid-full contact">
+    <!-- 左側：文字內容 -->
+    <div class="contact__content">
       <RevealText delay={0.1}><SectionLabel text="Contact" /></RevealText>
       <RevealText pt="var(--space-3)" mb="var(--space-4)"><h2 class="contact__headline">{t.headline}</h2></RevealText>
-      <p class="contact__subtext" data-fade-up data-fade-trigger=".contact">{t.subtext}</p>
+      <p class="contact__subtext" data-fade-up data-fade-trigger=".contact__content">{t.subtext}</p>
 
       <div class="contact__links">
         {
@@ -65,17 +66,62 @@ const links = [
               rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
               class="contact__link"
             >
-              <span data-scramble="scroll hover" data-scramble-group="contact-links" data-scramble-trigger=".contact" data-scramble-target=".contact__link" data-scramble-duration="0.4" data-scramble-hold="0.2">{link.label}</span>
+              <span data-scramble="scroll hover" data-scramble-group="contact-links" data-scramble-trigger=".contact__content" data-scramble-target=".contact__link" data-scramble-duration="0.4" data-scramble-hold="0.2">{link.label}</span>
               <span class="contact__link-arrow" aria-hidden="true">↗</span>
             </a>
           ))
         }
       </div>
     </div>
+
+    <!-- 右側：ASCII 視覺效果 -->
+    <div class="contact__ascii-wrapper">
+      <div class="contact__ascii" id="contact-ascii"></div>
+      <img src="/images/projects/frieren-group/frieren-group4.png" class="contact__ascii-fallback" id="contact-ascii-fallback" alt="" />
+    </div>
   </div>
 </section>
 
 <style lang="scss">
+  // --------------------------------------------------------------------------
+  // 雙欄佈局
+  // --------------------------------------------------------------------------
+  .contact__content {
+    grid-column: 1 / span 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .contact__ascii-wrapper {
+    grid-column: 5 / span 8;
+    position: relative;
+    aspect-ratio: 1400 / 741; // 匹配 frieren-group 圖片比例
+  }
+
+  .contact__ascii {
+    position: absolute;
+    inset: 0;
+
+    :global(canvas) {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  }
+
+  .contact__ascii-fallback {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  // --------------------------------------------------------------------------
+  // 文字內容
+  // --------------------------------------------------------------------------
   .contact__headline {
     margin-bottom: var(--space-4);
   }
@@ -125,6 +171,14 @@ const links = [
   // Responsive
   // --------------------------------------------------------------------------
   @media (max-width: 767px) {
+    .contact__content {
+      grid-column: 1 / span 12;
+    }
+
+    .contact__ascii-wrapper {
+      display: none;
+    }
+
     .contact__links {
       flex-direction: column;
       gap: var(--space-6);

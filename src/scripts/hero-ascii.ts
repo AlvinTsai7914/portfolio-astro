@@ -12,6 +12,7 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { isTouchDevice, prefersReducedMotion } from "../utils/device";
+import { createCharAtlas, createDepthScene } from "../utils/ascii-helpers";
 import depthVert from "../shaders/depth-parallax.vert.glsl?raw";
 import depthFrag from "../shaders/depth-parallax.frag.glsl?raw";
 import asciiVert from "../shaders/ascii.vert.glsl?raw";
@@ -31,40 +32,13 @@ const ASCII_COLOR_MIX = 0.0;
 
 // 入場動畫
 const LAYER1_DELAY = 0;
-const LAYER1_DURATION = 4;
-const LAYER2_DELAY = 2;   // 法杖在人物揭示中段開始出現
-const LAYER2_DURATION = 0.8;
+const LAYER1_DURATION = 3;
+const LAYER2_DELAY = 1;   // 法杖在人物揭示中段開始出現
+const LAYER2_DURATION = 1;
 const ENTRANCE_EASE = "power2.out";
 
 // --------------------------------------------------------------------------
-// 字元 Sprite Sheet
-// --------------------------------------------------------------------------
-function createCharAtlas(chars: string, cellHeight: number): THREE.CanvasTexture {
-  const charWidth = Math.ceil(cellHeight * CHAR_ASPECT);
-  const canvas = document.createElement("canvas");
-  canvas.width = charWidth * chars.length;
-  canvas.height = cellHeight;
-
-  const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "white";
-  ctx.font = `${cellHeight}px "Geist Mono", "Noto Sans Mono", monospace`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  for (let i = 0; i < chars.length; i++) {
-    ctx.fillText(chars[i], charWidth * i + charWidth / 2, cellHeight / 2);
-  }
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.minFilter = THREE.NearestFilter;
-  texture.magFilter = THREE.NearestFilter;
-  return texture;
-}
-
-// --------------------------------------------------------------------------
-// Reveal Map（人物用：從頭部向外徑向擴散）
+// Reveal Map（Hero 專用：從頭部向外徑向擴散）
 // --------------------------------------------------------------------------
 function createRevealMap(width: number, height: number): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
@@ -112,40 +86,6 @@ function createRevealMap(width: number, height: number): THREE.CanvasTexture {
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
   return texture;
-}
-
-// --------------------------------------------------------------------------
-// 建立 Depth Parallax 場景（可重用於兩個圖層）
-// --------------------------------------------------------------------------
-function createDepthScene(
-  texture: THREE.Texture,
-  depthTexture: THREE.Texture,
-  viewportW: number,
-  viewportH: number,
-) {
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-
-  const uniforms = {
-    uTexture: { value: texture },
-    uDepth: { value: depthTexture },
-    uMouse: { value: new THREE.Vector2(0, 0) },
-    uIntensity: { value: 0 }, // 入場動畫從 0 開始
-    uImageSize: { value: new THREE.Vector2(texture.image.width, texture.image.height) },
-    uViewportSize: { value: new THREE.Vector2(viewportW, viewportH) },
-  };
-
-  const material = new THREE.ShaderMaterial({
-    vertexShader: depthVert,
-    fragmentShader: depthFrag,
-    uniforms,
-    transparent: true,
-  });
-
-  const geometry = new THREE.PlaneGeometry(2, 2);
-  scene.add(new THREE.Mesh(geometry, material));
-
-  return { scene, camera, uniforms, material, geometry };
 }
 
 // --------------------------------------------------------------------------
@@ -216,7 +156,7 @@ function initHeroAscii() {
   const scene2 = new THREE.Scene();
   const camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  const charAtlas = createCharAtlas(ASCII_CHARS, ASCII_CELL_SIZE * dpr);
+  const charAtlas = createCharAtlas(ASCII_CHARS, ASCII_CELL_SIZE * dpr, CHAR_ASPECT);
   const revealMap = createRevealMap(256, 256);
   disposables.push(charAtlas, revealMap);
 
@@ -233,8 +173,11 @@ function initHeroAscii() {
     uReveal1: { value: 0 },
     uReveal2: { value: 0 },
     uRevealMap: { value: revealMap },
-    uStaffCenter: { value: new THREE.Vector2(0.45, 0.45) }, // 法杖中心（UV）
+    uStaffCenter: { value: new THREE.Vector2(0.45, 0.45) },
     uViewportAspect: { value: w / h },
+    uMouseUv: { value: new THREE.Vector2(-1, -1) }, // 初始在畫面外
+    uHoverRadius: { value: 0.12 },
+    uHoverColor: { value: new THREE.Color(0xeeeeee) },
   };
 
   const asciiMaterial = new THREE.ShaderMaterial({
@@ -268,8 +211,8 @@ function initHeroAscii() {
     disposables.push(tex1, depth1, tex2, depth2);
 
     // 建立兩個 depth parallax 場景
-    const layer1 = createDepthScene(tex1, depth1, w, h);
-    const layer2 = createDepthScene(tex2, depth2, w, h);
+    const layer1 = createDepthScene(tex1, depth1, w, h, depthVert, depthFrag);
+    const layer2 = createDepthScene(tex2, depth2, w, h, depthVert, depthFrag);
     disposables.push(layer1.material, layer1.geometry, layer2.material, layer2.geometry);
 
     // Mouse tracking
@@ -279,8 +222,25 @@ function initHeroAscii() {
     document.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
+        // Depth parallax 用 -1~1 範圍
         targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        // Hover 光圈用 UV 座標（相對於 container）
+        const rect = container.getBoundingClientRect();
+        asciiUniforms.uMouseUv.value.set(
+          (e.clientX - rect.left) / rect.width,
+          1.0 - (e.clientY - rect.top) / rect.height, // Y 反轉（UV 0=底, 1=頂）
+        );
+      },
+      { signal },
+    );
+
+    // 滑鼠離開 container 時移到畫面外
+    container.addEventListener(
+      "mouseleave",
+      () => {
+        asciiUniforms.uMouseUv.value.set(-1, -1);
       },
       { signal },
     );

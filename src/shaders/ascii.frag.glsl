@@ -16,6 +16,9 @@ uniform float uReveal2;         // 法杖揭示進度（0→1）
 uniform sampler2D uRevealMap;   // 人物揭示順序圖（徑向漸層）
 uniform vec2 uStaffCenter;      // 法杖中心點（UV）
 uniform float uViewportAspect;  // 容器寬高比
+uniform vec2 uMouseUv;          // 滑鼠位置（UV，0-1）
+uniform float uHoverRadius;     // hover 光圈半徑
+uniform vec3 uHoverColor;       // hover 字元顏色（白色）
 
 varying vec2 vUv;
 
@@ -63,8 +66,8 @@ void main() {
   // 判斷哪個圖層有內容（亮度 > 閾值 = 有內容）
   float bright1 = dot(color1.rgb, vec3(0.299, 0.587, 0.114));
   float bright2 = dot(color2.rgb, vec3(0.299, 0.587, 0.114));
-  bool hasContent1 = bright1 > 0.08;
-  bool hasContent2 = bright2 > 0.02;
+  bool hasContent1 = bright1 > 0.05;
+  bool hasContent2 = bright2 > 0.05;
 
   // 決定最終使用的顏色和 opacity
   // 法杖疊在人物上方（如果兩層都有內容，法杖優先）
@@ -88,6 +91,14 @@ void main() {
   // ASCII 字元渲染
   float charAlpha = getCharAlpha(finalBrightness, cellUv);
   vec3 charColor = mix(uFgColor, sourceColor, uColorMix);
+
+  // Hover 光圈：滑鼠附近的字元漸變為白色
+  vec2 mouseDiff = vUv - uMouseUv;
+  mouseDiff.x *= uViewportAspect;
+  float mouseDist = length(mouseDiff);
+  float hoverMix = 1.0 - smoothstep(0.0, uHoverRadius, mouseDist);
+  charColor = mix(charColor, uHoverColor, hoverMix);
+
   vec3 finalColor = mix(uBgColor, charColor, charAlpha * finalOpacity);
   gl_FragColor = vec4(finalColor, 1.0);
 }
