@@ -10,28 +10,22 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { isTouchDevice, prefersReducedMotion } from "../utils/device";
-import { createCharAtlas, createDepthScene } from "../utils/ascii-helpers";
+import {
+  createCharAtlas, createDepthScene, loadTexture,
+  ASCII_CELL_SIZE, CHAR_ASPECT, MOUSE_LERP, ASCII_CHARS,
+  ASCII_BG_COLOR, ASCII_FG_COLOR, ASCII_COLOR_MIX, ENTRANCE_EASE,
+} from "../utils/ascii-helpers";
 import depthVert from "../shaders/depth-parallax.vert.glsl?raw";
 import depthFrag from "../shaders/depth-parallax.frag.glsl?raw";
 import asciiVert from "../shaders/ascii.vert.glsl?raw";
 import asciiFrag from "../shaders/ascii-contact.frag.glsl?raw";
 
 // --------------------------------------------------------------------------
-// Constants
+// Contact 專用常數
 // --------------------------------------------------------------------------
 const PARALLAX_INTENSITY = 0.008;
-const MOUSE_LERP = 0.05;
-const ASCII_CELL_SIZE = 6;
-const CHAR_ASPECT = 0.6;
-const ASCII_CHARS = " .'`^\",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-const ASCII_BG_COLOR = new THREE.Color(0x141314);
-const ASCII_FG_COLOR = new THREE.Color(0xfd8d68);
-const ASCII_COLOR_MIX = 0.0;
-
-// 入場動畫（3 個角色依序出現）
 const LAYER_DELAYS = [0, 1.0, 2.0];
 const LAYER_DURATIONS = [1.5, 1.5, 2];
-const ENTRANCE_EASE = "power2.out";
 
 // 素材路徑（海塔、修塔爾克、芙莉蓮+費倫）
 const IMAGE_PATHS = [
@@ -99,16 +93,12 @@ function initContactAscii() {
   glRenderer.setClearColor(0x000000, 0);
   container.appendChild(glRenderer.domElement);
 
-  // 4 個 RenderTarget
+  // 3 個 RenderTarget
   const renderTargets = Array.from({ length: 3 }, () => {
     const rt = new THREE.WebGLRenderTarget(w * dpr, h * dpr);
     disposables.push(rt);
     return rt;
   });
-
-  // 空 texture 給未使用的 layer4
-  const emptyRT = new THREE.WebGLRenderTarget(1, 1);
-  disposables.push(emptyRT);
 
   // ASCII pass
   const scene2 = new THREE.Scene();
@@ -121,7 +111,6 @@ function initContactAscii() {
     tLayer1: { value: renderTargets[0].texture },
     tLayer2: { value: renderTargets[1].texture },
     tLayer3: { value: renderTargets[2].texture },
-    tLayer4: { value: emptyRT.texture },
     uCharAtlas: { value: charAtlas },
     uResolution: { value: new THREE.Vector2(w * dpr, h * dpr) },
     uCellSize: { value: new THREE.Vector2(Math.ceil(ASCII_CELL_SIZE * CHAR_ASPECT * dpr), ASCII_CELL_SIZE * dpr) },
@@ -132,7 +121,6 @@ function initContactAscii() {
     uReveal1: { value: 0 },
     uReveal2: { value: 0 },
     uReveal3: { value: 0 },
-    uReveal4: { value: 0 },
     uViewportAspect: { value: w / h },
     uMouseUv: { value: new THREE.Vector2(-1, -1) },
     uHoverRadius: { value: 0.12 },
@@ -150,16 +138,7 @@ function initContactAscii() {
   disposables.push(asciiGeometry);
   scene2.add(new THREE.Mesh(asciiGeometry, asciiMaterial));
 
-  // --------------------------------------------------------------------------
-  // 載入 6 張 texture（3 原圖 + 3 depth）
-  // --------------------------------------------------------------------------
-  const loader = new THREE.TextureLoader();
-  const load = (path: string) =>
-    new Promise<THREE.Texture>((resolve, reject) =>
-      loader.load(path, resolve, undefined, () => reject(new Error(`Failed to load: ${path}`))),
-    );
-
-  const allLoads = IMAGE_PATHS.map(load);
+  const allLoads = IMAGE_PATHS.map(loadTexture);
 
   // 純白 1x1 texture（2D 平移：所有像素等量偏移）
   const whiteCanvas = document.createElement("canvas");
@@ -186,16 +165,17 @@ function initContactAscii() {
     const targetMouse = new THREE.Vector2(0, 0);
     const currentMouse = new THREE.Vector2(0, 0);
 
+    let cachedRect = container.getBoundingClientRect();
+
     document.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
         targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-        const rect = container.getBoundingClientRect();
         asciiUniforms.uMouseUv.value.set(
-          (e.clientX - rect.left) / rect.width,
-          1.0 - (e.clientY - rect.top) / rect.height,
+          (e.clientX - cachedRect.left) / cachedRect.width,
+          1.0 - (e.clientY - cachedRect.top) / cachedRect.height,
         );
       },
       { signal },
@@ -231,12 +211,12 @@ function initContactAscii() {
       currentMouse.x += (targetMouse.x - currentMouse.x) * MOUSE_LERP;
       currentMouse.y += (targetMouse.y - currentMouse.y) * MOUSE_LERP;
 
-      // 更新滑鼠位置（Layer 2、3 移動減半，Layer 4 反向）
-      layers[0].uniforms.uMouse.value.set(currentMouse.x * 0.5, currentMouse.y * 0.5);
-      layers[1].uniforms.uMouse.value.set(currentMouse.x * 0.5, currentMouse.y * 0.5);
+      // Layer 1、2 移動減半，Layer 3 反向
+      layers[0].uniforms.uMouse.value.set(currentMouse.x, -currentMouse.y);
+      layers[1].uniforms.uMouse.value.set(currentMouse.x, -currentMouse.y);
       layers[2].uniforms.uMouse.value.set(-currentMouse.x, currentMouse.y);
 
-      // Pass 1a-1d: 4 個 depth parallax
+      // Pass 1a-1c: 3 個 depth parallax
       layers.forEach((layer, i) => {
         glRenderer!.setRenderTarget(renderTargets[i]);
         glRenderer!.setClearColor(0x000000, 0);
@@ -301,6 +281,7 @@ function initContactAscii() {
       renderTargets.forEach((rt) => rt.setSize(nw * dpr, nh * dpr));
       layers.forEach((l) => l.uniforms.uViewportSize.value.set(nw, nh));
       asciiUniforms.uResolution.value.set(nw * dpr, nh * dpr);
+      cachedRect = container.getBoundingClientRect();
       asciiUniforms.uViewportAspect.value = nw / nh;
     }
 

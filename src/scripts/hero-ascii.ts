@@ -12,30 +12,24 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { isTouchDevice, prefersReducedMotion } from "../utils/device";
-import { createCharAtlas, createDepthScene } from "../utils/ascii-helpers";
+import {
+  createCharAtlas, createDepthScene, loadTexture,
+  ASCII_CELL_SIZE, CHAR_ASPECT, MOUSE_LERP, ASCII_CHARS,
+  ASCII_BG_COLOR, ASCII_FG_COLOR, ASCII_COLOR_MIX, ENTRANCE_EASE,
+} from "../utils/ascii-helpers";
 import depthVert from "../shaders/depth-parallax.vert.glsl?raw";
 import depthFrag from "../shaders/depth-parallax.frag.glsl?raw";
 import asciiVert from "../shaders/ascii.vert.glsl?raw";
 import asciiFrag from "../shaders/ascii.frag.glsl?raw";
 
 // --------------------------------------------------------------------------
-// Constants
+// Hero 專用常數
 // --------------------------------------------------------------------------
 const PARALLAX_INTENSITY = 0.03;
-const MOUSE_LERP = 0.05;
-const ASCII_CELL_SIZE = 6;
-const CHAR_ASPECT = 0.6;
-const ASCII_CHARS = " .'`^\",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-const ASCII_BG_COLOR = new THREE.Color(0x141314);
-const ASCII_FG_COLOR = new THREE.Color(0xfd8d68);
-const ASCII_COLOR_MIX = 0.0;
-
-// 入場動畫
 const LAYER1_DELAY = 0;
 const LAYER1_DURATION = 3;
-const LAYER2_DELAY = 1;   // 法杖在人物揭示中段開始出現
+const LAYER2_DELAY = 1;
 const LAYER2_DURATION = 1;
-const ENTRANCE_EASE = "power2.out";
 
 // --------------------------------------------------------------------------
 // Reveal Map（Hero 專用：從頭部向外徑向擴散）
@@ -194,17 +188,11 @@ function initHeroAscii() {
   // --------------------------------------------------------------------------
   // 載入 4 張 texture
   // --------------------------------------------------------------------------
-  const loader = new THREE.TextureLoader();
-  const load = (path: string) =>
-    new Promise<THREE.Texture>((resolve, reject) =>
-      loader.load(path, resolve, undefined, () => reject(new Error(`Failed to load: ${path}`))),
-    );
-
   Promise.all([
-    load("/images/hero/frieren.png"),
-    load("/images/hero/frieren-depth.png"),
-    load("/images/hero/frieren-staff.png"),
-    load("/images/hero/frieren-staff-depth.png"),
+    loadTexture("/images/hero/frieren.png"),
+    loadTexture("/images/hero/frieren-depth.png"),
+    loadTexture("/images/hero/frieren-staff.png"),
+    loadTexture("/images/hero/frieren-staff-depth.png"),
   ]).then(([tex1, depth1, tex2, depth2]) => {
     if (!glRenderer) return;
 
@@ -219,18 +207,17 @@ function initHeroAscii() {
     const targetMouse = new THREE.Vector2(0, 0);
     const currentMouse = new THREE.Vector2(0, 0);
 
+    let cachedRect = container.getBoundingClientRect();
+
     document.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
-        // Depth parallax 用 -1~1 範圍
         targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-        // Hover 光圈用 UV 座標（相對於 container）
-        const rect = container.getBoundingClientRect();
         asciiUniforms.uMouseUv.value.set(
-          (e.clientX - rect.left) / rect.width,
-          1.0 - (e.clientY - rect.top) / rect.height, // Y 反轉（UV 0=底, 1=頂）
+          (e.clientX - cachedRect.left) / cachedRect.width,
+          1.0 - (e.clientY - cachedRect.top) / cachedRect.height,
         );
       },
       { signal },
@@ -342,6 +329,7 @@ function initHeroAscii() {
       layer2.uniforms.uViewportSize.value.set(nw, nh);
       asciiUniforms.uResolution.value.set(nw * dpr, nh * dpr);
       asciiUniforms.uViewportAspect.value = nw / nh;
+      cachedRect = container.getBoundingClientRect();
     }
 
     window.addEventListener("resize", onResize, { signal });

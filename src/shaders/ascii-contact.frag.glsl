@@ -1,11 +1,9 @@
-// 4 圖層 ASCII 後處理（Contact 區塊用）
-// Layer 1: 場景（持續顯示）
-// Layer 2-4: 角色（依序出現）
+// 3 圖層 ASCII 後處理（Contact 區塊用）
+// Layer 1-3: 角色依序出現
 
 uniform sampler2D tLayer1;
 uniform sampler2D tLayer2;
 uniform sampler2D tLayer3;
-uniform sampler2D tLayer4;
 uniform sampler2D uCharAtlas;
 uniform vec2 uResolution;
 uniform vec2 uCellSize;
@@ -16,7 +14,6 @@ uniform float uColorMix;
 uniform float uReveal1;
 uniform float uReveal2;
 uniform float uReveal3;
-uniform float uReveal4;
 uniform float uViewportAspect;
 uniform vec2 uMouseUv;
 uniform float uHoverRadius;
@@ -43,29 +40,21 @@ void main() {
     return;
   }
 
-  // 取 4 個圖層的顏色
   vec4 c1 = texture2D(tLayer1, cellCenter);
   vec4 c2 = texture2D(tLayer2, cellCenter);
   vec4 c3 = texture2D(tLayer3, cellCenter);
-  vec4 c4 = texture2D(tLayer4, cellCenter);
 
   float b1 = dot(c1.rgb, vec3(0.299, 0.587, 0.114));
   float b2 = dot(c2.rgb, vec3(0.299, 0.587, 0.114));
   float b3 = dot(c3.rgb, vec3(0.299, 0.587, 0.114));
-  float b4 = dot(c4.rgb, vec3(0.299, 0.587, 0.114));
 
-  // 合成：Layer 4 > 3 > 2 > 1（後面蓋前面）
+  // 合成：Layer 3 > 2 > 1（後面蓋前面）
   float finalBrightness;
   float finalOpacity;
   vec3 sourceColor;
   bool hasContent = false;
 
-  if (b4 > 0.05 && uReveal4 > 0.01) {
-    finalBrightness = b4;
-    finalOpacity = uReveal4;
-    sourceColor = c4.rgb;
-    hasContent = true;
-  } else if (b3 > 0.05 && uReveal3 > 0.01) {
+  if (b3 > 0.05 && uReveal3 > 0.01) {
     finalBrightness = b3;
     finalOpacity = uReveal3;
     sourceColor = c3.rgb;

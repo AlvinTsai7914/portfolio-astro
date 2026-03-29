@@ -1,9 +1,31 @@
 // ==========================================================================
 // ASCII Effect 共用工具
-// 提供 createCharAtlas 和 createDepthScene 給 hero-ascii / contact-ascii 共用
 // ==========================================================================
 
 import * as THREE from "three";
+
+// --------------------------------------------------------------------------
+// 共用常數
+// --------------------------------------------------------------------------
+export const ASCII_CELL_SIZE = 6;
+export const CHAR_ASPECT = 0.6;
+export const MOUSE_LERP = 0.05;
+export const ASCII_CHARS = " .'`^\",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+export const ASCII_BG_COLOR = new THREE.Color(0x141314);
+export const ASCII_FG_COLOR = new THREE.Color(0xfd8d68);
+export const ASCII_COLOR_MIX = 0.0;
+export const ENTRANCE_EASE = "power2.out";
+
+// --------------------------------------------------------------------------
+// Texture 載入
+// --------------------------------------------------------------------------
+const loader = new THREE.TextureLoader();
+
+export function loadTexture(path: string): Promise<THREE.Texture> {
+  return new Promise((resolve, reject) =>
+    loader.load(path, resolve, undefined, () => reject(new Error(`Failed to load: ${path}`))),
+  );
+}
 
 // --------------------------------------------------------------------------
 // 字元 Sprite Sheet
