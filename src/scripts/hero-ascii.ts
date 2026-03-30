@@ -150,16 +150,16 @@ function initHeroAscii() {
   const scene2 = new THREE.Scene();
   const camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  const charAtlas = createCharAtlas(ASCII_CHARS, ASCII_CELL_SIZE * dpr, CHAR_ASPECT);
+  const atlas = createCharAtlas(ASCII_CHARS, ASCII_CELL_SIZE * dpr, CHAR_ASPECT);
   const revealMap = createRevealMap(256, 256);
-  disposables.push(charAtlas, revealMap);
+  disposables.push(atlas.texture, revealMap);
 
   const asciiUniforms = {
     tLayer1: { value: rt1.texture },
     tLayer2: { value: rt2.texture },
-    uCharAtlas: { value: charAtlas },
+    uCharAtlas: { value: atlas.texture },
     uResolution: { value: new THREE.Vector2(w * dpr, h * dpr) },
-    uCellSize: { value: new THREE.Vector2(Math.ceil(ASCII_CELL_SIZE * CHAR_ASPECT * dpr), ASCII_CELL_SIZE * dpr) },
+    uCellSize: { value: new THREE.Vector2(atlas.cellWidth, atlas.cellHeight) },
     uCharCount: { value: ASCII_CHARS.length },
     uBgColor: { value: ASCII_BG_COLOR },
     uFgColor: { value: ASCII_FG_COLOR },
@@ -207,17 +207,16 @@ function initHeroAscii() {
     const targetMouse = new THREE.Vector2(0, 0);
     const currentMouse = new THREE.Vector2(0, 0);
 
-    let cachedRect = container.getBoundingClientRect();
-
     document.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
         targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
+        const rect = container.getBoundingClientRect();
         asciiUniforms.uMouseUv.value.set(
-          (e.clientX - cachedRect.left) / cachedRect.width,
-          1.0 - (e.clientY - cachedRect.top) / cachedRect.height,
+          (e.clientX - rect.left) / rect.width,
+          1.0 - (e.clientY - rect.top) / rect.height,
         );
       },
       { signal },
@@ -329,7 +328,6 @@ function initHeroAscii() {
       layer2.uniforms.uViewportSize.value.set(nw, nh);
       asciiUniforms.uResolution.value.set(nw * dpr, nh * dpr);
       asciiUniforms.uViewportAspect.value = nw / nh;
-      cachedRect = container.getBoundingClientRect();
     }
 
     window.addEventListener("resize", onResize, { signal });

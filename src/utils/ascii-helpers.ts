@@ -7,7 +7,7 @@ import * as THREE from "three";
 // --------------------------------------------------------------------------
 // 共用常數
 // --------------------------------------------------------------------------
-export const ASCII_CELL_SIZE = 6;
+export const ASCII_CELL_SIZE = 5;
 export const CHAR_ASPECT = 0.6;
 export const MOUSE_LERP = 0.05;
 export const ASCII_CHARS = " .'`^\",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
@@ -34,28 +34,32 @@ export function createCharAtlas(
   chars: string,
   cellHeight: number,
   charAspect: number,
+  paddingX = 1, // 水平間距（px），左右各留
+  paddingY = 0, // 垂直間距（px），上下各留
 ): THREE.CanvasTexture {
-  const charWidth = Math.ceil(cellHeight * charAspect);
+  const fontSize = cellHeight; // 字體大小不變
+  const charWidth = Math.ceil(cellHeight * charAspect) + paddingX * 2;
+  const totalHeight = cellHeight + paddingY * 2;
   const canvas = document.createElement("canvas");
   canvas.width = charWidth * chars.length;
-  canvas.height = cellHeight;
+  canvas.height = totalHeight;
 
   const ctx = canvas.getContext("2d")!;
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "white";
-  ctx.font = `${cellHeight}px "Geist Mono", "Noto Sans Mono", monospace`;
+  ctx.font = `${fontSize}px "Geist Mono", "Noto Sans Mono", monospace`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
   for (let i = 0; i < chars.length; i++) {
-    ctx.fillText(chars[i], charWidth * i + charWidth / 2, cellHeight / 2);
+    ctx.fillText(chars[i], charWidth * i + charWidth / 2, totalHeight / 2);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.minFilter = THREE.NearestFilter;
   texture.magFilter = THREE.NearestFilter;
-  return texture;
+  return { texture, cellWidth: charWidth, cellHeight: totalHeight };
 }
 
 // --------------------------------------------------------------------------

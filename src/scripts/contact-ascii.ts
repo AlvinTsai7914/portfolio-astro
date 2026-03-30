@@ -104,16 +104,16 @@ function initContactAscii() {
   const scene2 = new THREE.Scene();
   const camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  const charAtlas = createCharAtlas(ASCII_CHARS, ASCII_CELL_SIZE * dpr, CHAR_ASPECT);
-  disposables.push(charAtlas);
+  const atlas = createCharAtlas(ASCII_CHARS, ASCII_CELL_SIZE * dpr, CHAR_ASPECT);
+  disposables.push(atlas.texture);
 
   const asciiUniforms = {
     tLayer1: { value: renderTargets[0].texture },
     tLayer2: { value: renderTargets[1].texture },
     tLayer3: { value: renderTargets[2].texture },
-    uCharAtlas: { value: charAtlas },
+    uCharAtlas: { value: atlas.texture },
     uResolution: { value: new THREE.Vector2(w * dpr, h * dpr) },
-    uCellSize: { value: new THREE.Vector2(Math.ceil(ASCII_CELL_SIZE * CHAR_ASPECT * dpr), ASCII_CELL_SIZE * dpr) },
+    uCellSize: { value: new THREE.Vector2(atlas.cellWidth, atlas.cellHeight) },
     uCharCount: { value: ASCII_CHARS.length },
     uBgColor: { value: ASCII_BG_COLOR },
     uFgColor: { value: ASCII_FG_COLOR },
@@ -165,17 +165,16 @@ function initContactAscii() {
     const targetMouse = new THREE.Vector2(0, 0);
     const currentMouse = new THREE.Vector2(0, 0);
 
-    let cachedRect = container.getBoundingClientRect();
-
     document.addEventListener(
       "mousemove",
       (e: MouseEvent) => {
         targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
+        const rect = container.getBoundingClientRect();
         asciiUniforms.uMouseUv.value.set(
-          (e.clientX - cachedRect.left) / cachedRect.width,
-          1.0 - (e.clientY - cachedRect.top) / cachedRect.height,
+          (e.clientX - rect.left) / rect.width,
+          1.0 - (e.clientY - rect.top) / rect.height,
         );
       },
       { signal },
@@ -281,7 +280,6 @@ function initContactAscii() {
       renderTargets.forEach((rt) => rt.setSize(nw * dpr, nh * dpr));
       layers.forEach((l) => l.uniforms.uViewportSize.value.set(nw, nh));
       asciiUniforms.uResolution.value.set(nw * dpr, nh * dpr);
-      cachedRect = container.getBoundingClientRect();
       asciiUniforms.uViewportAspect.value = nw / nh;
     }
 
