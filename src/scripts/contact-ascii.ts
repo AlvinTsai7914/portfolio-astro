@@ -1,10 +1,23 @@
 // ==========================================================================
-// Contact ASCII Effect — 4 圖層深度視差 + ASCII 後處理
+// Contact ASCII Effect — 3 圖層 2D 平移 + ASCII 後處理
 //
-// Layer 1: 石柱場景（持續顯示）
-// Layer 2: 海塔（依序出現）
-// Layer 3: 修塔爾克（依序出現）
-// Layer 4: 芙莉蓮+費倫（最後出現）
+// 渲染架構（每幀 4 pass）：
+//   Pass 1a: 海塔 depth parallax → RenderTarget 1
+//   Pass 1b: 修塔爾克 depth parallax → RenderTarget 2
+//   Pass 1c: 芙莉蓮+費倫 depth parallax → RenderTarget 3
+//   Pass 2:  ascii-contact shader（合成 3 層 + 透明背景）→ 畫面
+//
+// 與 Hero ASCII 的差異：
+//   - 3 層（非 2 層）
+//   - 2D 平移（純白 depth texture，無深度視差）
+//   - 圖層交錯移動方向（Layer 1,2 正向減半、Layer 3 反向）
+//   - 透明背景（alpha: true）融入 dark section
+//   - ScrollTrigger 觸發入場動畫（非頁面載入）
+//
+// 相關檔案：
+//   src/shaders/ascii-contact.frag.glsl — 3 層 ASCII shader
+//   src/utils/ascii-helpers.ts          — 共用工具和常數
+//   src/components/sections/Contact.astro — DOM 容器
 // ==========================================================================
 
 import * as THREE from "three";
@@ -21,10 +34,16 @@ import asciiVert from "../shaders/ascii.vert.glsl?raw";
 import asciiFrag from "../shaders/ascii-contact.frag.glsl?raw";
 
 // --------------------------------------------------------------------------
-// Contact 專用常數
+// Contact 專用常數（共用常數在 ascii-helpers.ts）
 // --------------------------------------------------------------------------
+
+/** 視差移動量（比 Hero 的 0.03 小，因為 2D 平移不需要太大偏移） */
 const PARALLAX_INTENSITY = 0.008;
+
+/** 各圖層入場延遲（秒）。ScrollTrigger 觸發後開始計時 */
 const LAYER_DELAYS = [0, 1.0, 2.0];
+
+/** 各圖層入場時長（秒） */
 const LAYER_DURATIONS = [1.5, 1.5, 2];
 
 // 素材路徑（海塔、修塔爾克、芙莉蓮+費倫）
@@ -140,7 +159,9 @@ function initContactAscii() {
 
   const allLoads = IMAGE_PATHS.map(loadTexture);
 
-  // 純白 1x1 texture（2D 平移：所有像素等量偏移）
+  // 純白 1x1 depth texture → 所有像素 depth=1.0 → 等量偏移 → 2D 平移
+  // 這是避免修改共用 shader 的技巧：正常 depth map 有深淺差異產生 3D 視差，
+  // 全白 = 沒有深淺差異 = 所有像素移動相同距離 = 2D 平移
   const whiteCanvas = document.createElement("canvas");
   whiteCanvas.width = 1;
   whiteCanvas.height = 1;
@@ -210,7 +231,8 @@ function initContactAscii() {
       currentMouse.x += (targetMouse.x - currentMouse.x) * MOUSE_LERP;
       currentMouse.y += (targetMouse.y - currentMouse.y) * MOUSE_LERP;
 
-      // Layer 1、2 移動減半，Layer 3 反向
+      // 圖層交錯移動：Layer 1,2 正向但減半速度，Layer 3 反向全速
+      // 產生角色們左右交錯移動的視覺效果
       layers[0].uniforms.uMouse.value.set(currentMouse.x, -currentMouse.y);
       layers[1].uniforms.uMouse.value.set(currentMouse.x, -currentMouse.y);
       layers[2].uniforms.uMouse.value.set(-currentMouse.x, currentMouse.y);
@@ -230,7 +252,11 @@ function initContactAscii() {
       glRenderer.render(scene2, camera2);
     }
 
-    // 入場動畫（ScrollTrigger 觸發：進入視窗時播放）
+    // 入場動畫 — 使用獨立的 IntersectionObserver（threshold 0.2）
+    // 當容器 20% 進入視窗時觸發，一次性播放（hasPlayed guard）
+    // 與 render loop 的 observer（threshold 0）分開，因為語義不同：
+    //   render observer: 只要有任何部分可見就開始渲染（效能優化）
+    //   play observer:   進入 20% 才播動畫（避免太早觸發看不到效果）
     const reduced = prefersReducedMotion();
     const revealKeys = ["uReveal1", "uReveal2", "uReveal3"] as const;
 

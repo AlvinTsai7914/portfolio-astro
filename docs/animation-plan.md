@@ -130,31 +130,32 @@
 
 ## 5. Lenis 平滑捲動
 
-**狀態**：⏳ 待進行
+**狀態**：✅ 已完成
 
-- 套件：`@studio-freight/lenis`
-- 取代原生捲動手感
-- 需確認與 GSAP ScrollTrigger 的整合（Lenis 需通知 ScrollTrigger 更新）
+- 套件：`lenis@1.3.21`
+- `src/scripts/smooth-scroll.ts`，GSAP ticker 驅動，手機版停用（< 768px）
 
 ---
 
 ## 6. 自訂游標
 
-**狀態**：⏳ 待進行
+**狀態**：✅ 已完成
 
-- 實作方式：React 元件（Islands Architecture），純 JS
-- 滑鼠跟隨的客製化游標
-- 可能的互動：hover 連結時游標放大 / 改變形狀
+- `src/scripts/custom-cursor.ts`，情境式 Hover 徽章（good-fella 風格）
+- 預設不可見，hover `[data-cursor-text]` 時出現品牌色藥丸徽章
+- GSAP 平滑跟隨 + 速度驅動旋轉 + 彈跳縮放
+- 觸控裝置停用，原生游標保留
 
 ---
 
 ## 7. Text Scramble
 
-**狀態**：⏳ 待進行
+**狀態**：✅ 已完成
 
-- 實作方式：React 元件，純 JS
-- hover 時文字亂碼 → 依序還原
-- 適用位置：待定（Nav 連結、SectionLabel、技能標籤等候選）
+- `src/scripts/text-scramble.ts`，純 JS 實作（good-fella 同款字元集）
+- 支援 hover / scroll / immediate 三種觸發，可組合
+- 支援 delay、hold、duration、stagger、自訂字元集
+- 應用：Hero CTA、Projects View All（hover）、Contact 連結（scroll + hover）
 
 ---
 
@@ -164,4 +165,26 @@
 
 - Astro View Transitions（`<ClientRouter />`）
 - 頁面間的過渡動畫
-- 需確認所有動畫腳本的 `astro:page-load` / `astro:before-swap` 清理機制已就緒
+- 所有動畫腳本已預埋 `astro:page-load` / AbortController 清理機制
+
+---
+
+## 9. Hero ASCII 視覺效果
+
+**狀態**：✅ 已完成
+
+- `src/scripts/hero-ascii.ts` + `src/shaders/ascii.frag.glsl` + `src/shaders/depth-parallax.frag.glsl`
+- Three.js + 自訂 GLSL Shader，雙圖層（人物 + 法杖）
+- Depth map 視差 + ASCII 後處理 + 徑向揭示動畫
+- Hover 白色光圈、IntersectionObserver 暫停、觸控 fallback
+
+---
+
+## 10. Contact ASCII 視覺效果
+
+**狀態**：✅ 已完成
+
+- `src/scripts/contact-ascii.ts` + `src/shaders/ascii-contact.frag.glsl`
+- 3 圖層角色依序出現（ScrollTrigger 觸發）
+- 2D 平移（無 depth map）、圖層交錯移動方向
+- 透明背景融入 section、雙欄佈局
