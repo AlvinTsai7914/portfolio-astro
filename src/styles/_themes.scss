@@ -97,6 +97,42 @@
 }
 
 // --------------------------------------------------------------------------
+// View Transitions — 停用 Astro 預設 crossfade（改用自訂遮罩動畫）
+// --------------------------------------------------------------------------
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+// --------------------------------------------------------------------------
+// 頁面轉場 — 雙色遮罩
+// 來源：src/scripts/page-transition.ts
+// --------------------------------------------------------------------------
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+// 預設覆蓋（頁面載入時先遮住，等 JS 播退場動畫揭示）
+.page-transition__mask {
+  position: absolute;
+  inset: 0;
+  transform: scaleY(1);
+  transform-origin: bottom;
+  will-change: transform;
+}
+
+.page-transition__mask--brand {
+  background-color: #fb460d;
+}
+
+.page-transition__mask--fg {
+  background-color: #141314;
+}
+
+// --------------------------------------------------------------------------
 // Text Selection
 // 套用於所有帶 data-theme 的區塊
 // --------------------------------------------------------------------------

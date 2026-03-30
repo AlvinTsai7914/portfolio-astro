@@ -42,14 +42,20 @@
   // 邏輯與 Header 相同：IntersectionObserver 偵測重疊 Section
   // --------------------------------------------------------------------------
 
+  let floatingObserver: IntersectionObserver | null = null;
+
   function initFloatingSocial() {
+    // 清理舊 observer（View Transitions 重新初始化時）
+    floatingObserver?.disconnect();
+    floatingObserver = null;
+
     const social = document.getElementById("floating-social");
     if (!social) return;
 
     const sections = document.querySelectorAll<HTMLElement>("section[data-theme]");
     if (sections.length === 0) return;
 
-    const observer = new IntersectionObserver(
+    floatingObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
@@ -60,16 +66,14 @@
         }
       },
       {
-        // 偵測畫面中間位置（FloatingSocial 垂直置中）
         rootMargin: "-45% 0px -45% 0px",
         threshold: 0,
       }
     );
 
-    sections.forEach((section) => observer.observe(section));
+    sections.forEach((section) => floatingObserver!.observe(section));
   }
 
-  // 初始化：直接執行（MPA）+ astro:page-load（未來啟用 View Transitions 時）
   initFloatingSocial();
   document.addEventListener("astro:page-load", initFloatingSocial);
 </script>

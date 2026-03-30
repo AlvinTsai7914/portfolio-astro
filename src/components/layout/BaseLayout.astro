@@ -4,6 +4,7 @@
 // 職責：<head> 設定、Google Fonts 載入、全域樣式、共用元件（Header/Footer/FloatingSocial）
 // ==========================================================================
 
+import { ClientRouter } from "astro:transitions";
 import "../../styles/global.scss";
 import Header from "./Header.astro";
 import Footer from "./Footer.astro";
@@ -20,6 +21,7 @@ const {
   description = "",
   lang = "zh",
 } = Astro.props;
+
 ---
 
 <!doctype html>
@@ -42,6 +44,7 @@ const {
     />
 
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body>
     <Header lang={lang} />
@@ -50,9 +53,17 @@ const {
       <slot />
     </main>
     <Footer lang={lang} />
-    <div id="custom-cursor" class="custom-cursor" aria-hidden="true">
+    <div id="custom-cursor" class="custom-cursor" aria-hidden="true"
+         data-astro-transition-persist="custom-cursor">
       <span id="custom-cursor-text" class="custom-cursor__text"></span>
     </div>
+    <!-- 頁面轉場雙色遮罩（persist = 跨頁面保留，不被 DOM swap 替換） -->
+    <div class="page-transition" id="page-transition" aria-hidden="true"
+         data-astro-transition-persist="page-transition">
+      <div class="page-transition__mask page-transition__mask--brand"></div>
+      <div class="page-transition__mask page-transition__mask--fg"></div>
+    </div>
+    <script src="../../scripts/page-transition.ts"></script>
     <script src="../../scripts/hero-ascii.ts"></script>
     <script src="../../scripts/contact-ascii.ts"></script>
     <script src="../../scripts/reveal-animation.ts"></script>

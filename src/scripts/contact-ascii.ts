@@ -176,6 +176,9 @@ function initContactAscii() {
 
     images.forEach((t) => disposables.push(t));
 
+    // 通知遮罩：ASCII 準備完成
+    window.dispatchEvent(new Event("contact-ascii-ready"));
+
     // 3 個場景（共用純白 depth → 2D 平移）
     const layers = images.map((tex) =>
       createDepthScene(tex, whiteDepth, w, h, depthVert, depthFrag),

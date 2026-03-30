@@ -198,6 +198,9 @@ function initHeroAscii() {
 
     disposables.push(tex1, depth1, tex2, depth2);
 
+    // 通知遮罩：ASCII 準備完成，可以退場
+    window.dispatchEvent(new Event("hero-ascii-ready"));
+
     // 建立兩個 depth parallax 場景
     const layer1 = createDepthScene(tex1, depth1, w, h, depthVert, depthFrag);
     const layer2 = createDepthScene(tex2, depth2, w, h, depthVert, depthFrag);
