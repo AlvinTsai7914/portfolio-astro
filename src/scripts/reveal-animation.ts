@@ -79,11 +79,11 @@ function initRevealAnimations() {
     const tl = createRevealTimeline(el);
     activeTimelines.push(tl);
 
-    // Hero 區塊內的元素：頁面載入直接播放，不需 ScrollTrigger
-    const isInHero = el.closest("#hero") !== null;
+    // data-reveal-immediate 元素：等頁面轉場揭示完成後直接播放
+    const isImmediate = el.hasAttribute("data-reveal-immediate");
 
-    if (isInHero) {
-      tl.play();
+    if (isImmediate) {
+      window.addEventListener("page-revealed", () => tl.play(), { once: true });
     } else {
       ScrollTrigger.create({
         id: `reveal-${index}`,

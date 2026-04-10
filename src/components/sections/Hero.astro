@@ -38,10 +38,10 @@ const t = content[lang];
   <img src="/images/hero/frieren.png" class="hero__ascii-fallback" id="hero-ascii-fallback" alt="" />
   <div class="grid">
     <div class="grid-full hero__content">
-      <RevealText delay={1.2}><SectionLabel text="Hero" /></RevealText>
+      <RevealText delay={1.2} immediate><SectionLabel text="Hero" /></RevealText>
       <h1>
-        <RevealText delay={1}><span class="hero__title">Frontend</span></RevealText>
-        <RevealText delay={1.2}  mt="-24px"><span class="hero__title" role="doc-subtitle">Developer</span></RevealText>
+        <RevealText delay={1} immediate><span class="hero__title">Frontend</span></RevealText>
+        <RevealText delay={1.2} mt="-24px" immediate><span class="hero__title" role="doc-subtitle">Developer</span></RevealText>
       </h1>
       <p class="hero__name" data-fade-up data-fade-group="hero-entrance" data-fade-immediate data-fade-delay="1.5">YourName</p>
       <p class="hero__tagline" data-fade-up data-fade-group="hero-entrance" data-fade-immediate data-fade-delay="1">{t.tagline}</p>

@@ -7,6 +7,7 @@
 
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../../components/layout/BaseLayout.astro";
+import RevealText from "../../../components/ui/RevealText.astro";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects-zh");
@@ -28,8 +29,8 @@ const { Content } = await render(project);
       <div class="grid">
         <div class="grid-full">
           <a href="/zh/#projects" class="case-study__back">← 返回作品</a>
-          <h1 class="case-study__title">{project.data.title}</h1>
-          <p class="case-study__desc">{project.data.description}</p>
+          <RevealText immediate mb="var(--space-4)"><h1 class="case-study__title">{project.data.title}</h1></RevealText>
+          <RevealText immediate delay={0.2} mb="var(--space-8)"><p class="case-study__desc">{project.data.description}</p></RevealText>
           <div class="case-study__meta">
             <div class="case-study__tags">
               {project.data.tags.map((tag: string) => (
@@ -98,14 +99,12 @@ const { Content } = await render(project);
 
   .case-study__title {
     font-size: var(--text-h1);
-    margin-bottom: var(--space-4);
   }
 
   .case-study__desc {
     font-size: var(--text-body-lg);
     color: var(--color-foreground-muted);
     max-width: var(--container-2xl);
-    margin-bottom: var(--space-8);
   }
 
   .case-study__meta {

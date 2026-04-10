@@ -26,9 +26,11 @@ interface Props {
   mb?: string;
   /** 外層 padding-top，用於與上方元素（如 SectionLabel）的間距 */
   pt?: string;
+  /** 等待 page-revealed 事件後直接播放，不使用 ScrollTrigger */
+  immediate?: boolean;
 }
 
-const { delay = 0, mt, mb, pt } = Astro.props;
+const { delay = 0, mt, mb, pt, immediate = false } = Astro.props;
 const styleStr = [
   mt && `margin-top: ${mt}`,
   pt && `padding-top: ${pt}`,
@@ -40,6 +42,7 @@ const styleStr = [
   class="reveal-text"
   data-reveal
   data-reveal-delay={delay}
+  data-reveal-immediate={immediate || undefined}
   style={styleStr}
 >
   <div class="reveal-text__content">
