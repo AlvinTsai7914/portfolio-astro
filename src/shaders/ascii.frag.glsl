@@ -71,7 +71,9 @@ void main() {
   float revealOrder1 = texture2D(uRevealMap, vUv).r;
   float edge1 = 0.05; // 揭示邊緣柔化寬度
   float threshold1 = uReveal1 * (1.0 + edge1 * 2.0);
-  float opacity1 = 1.0 - smoothstep(threshold1 - edge1, threshold1 + edge1, revealOrder1);
+  float opacity1 = uReveal1 > 0.0
+    ? 1.0 - smoothstep(threshold1 - edge1, threshold1 + edge1, revealOrder1)
+    : 0.0;
 
   // ---- Layer 2 揭示：從法杖中心徑向擴散 ----
   vec2 staffDiff = vUv - uStaffCenter;
@@ -81,7 +83,9 @@ void main() {
   float staffOrder = staffDist / staffMaxDist;
   float edge2 = 0.08;
   float threshold2 = uReveal2 * (1.0 + edge2 * 2.0);
-  float opacity2 = 1.0 - smoothstep(threshold2 - edge2, threshold2 + edge2, staffOrder);
+  float opacity2 = uReveal2 > 0.0
+    ? 1.0 - smoothstep(threshold2 - edge2, threshold2 + edge2, staffOrder)
+    : 0.0;
 
   // ---- 右下角遮蔽（隱藏 Gemini SynthID 浮水印）----
   // Gemini AI 生成的圖片嵌入了不可見的 SynthID 浮水印，

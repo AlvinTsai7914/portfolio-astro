@@ -43,7 +43,7 @@ function createRevealMap(width: number, height: number): THREE.CanvasTexture {
   ctx.fillStyle = "rgb(255, 255, 255)";
   ctx.fillRect(0, 0, width, height);
 
-  const headX = width * 0.47;
+  const headX = width * 0.5;
   const headY = height * 0.1;
 
   ctx.save();
@@ -279,15 +279,18 @@ function initHeroAscii() {
 
     animate();
 
-    // 入場動畫
-    const reduced = prefersReducedMotion();
+    // 入場動畫 — 等遮罩退場完成（page-revealed）後才開始
+    function startEntrance() {
+      const reduced = prefersReducedMotion();
 
-    if (reduced) {
-      asciiUniforms.uReveal1.value = 1;
-      asciiUniforms.uReveal2.value = 1;
-      layer1.uniforms.uIntensity.value = PARALLAX_INTENSITY;
-      layer2.uniforms.uIntensity.value = PARALLAX_INTENSITY;
-    } else {
+      if (reduced) {
+        asciiUniforms.uReveal1.value = 1;
+        asciiUniforms.uReveal2.value = 1;
+        layer1.uniforms.uIntensity.value = PARALLAX_INTENSITY;
+        layer2.uniforms.uIntensity.value = PARALLAX_INTENSITY;
+        return;
+      }
+
       entranceTimeline = gsap.timeline({ delay: LAYER1_DELAY });
 
       // 人物揭示（徑向擴散）
@@ -318,6 +321,9 @@ function initHeroAscii() {
         ease: ENTRANCE_EASE,
       }, LAYER2_DELAY);
     }
+
+    // 監聽遮罩退場完成事件
+    window.addEventListener("page-revealed", startEntrance, { once: true, signal });
 
     // Resize
     function onResize() {
