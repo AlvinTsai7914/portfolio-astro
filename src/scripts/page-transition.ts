@@ -144,9 +144,19 @@ document.addEventListener("astro:before-preparation", (e) => {
 });
 
 document.addEventListener("astro:after-swap", async () => {
-  window.scrollTo(0, 0);
+  // 有 hash 時滾到對應元素，沒有則滾到頂部
+  const hash = window.location.hash;
+  const target = hash ? document.querySelector(hash) : null;
+
+  if (target) {
+    target.scrollIntoView({ behavior: "instant" });
+  } else {
+    window.scrollTo(0, 0);
+  }
+
   await waitForAsciiReady();
-  animateReveal();
+  await animateReveal();
+  window.dispatchEvent(new Event("page-revealed"));
 });
 
 // --------------------------------------------------------------------------
@@ -154,7 +164,8 @@ document.addEventListener("astro:after-swap", async () => {
 // --------------------------------------------------------------------------
 async function handleInitialLoad() {
   await waitForAsciiReady();
-  animateReveal();
+  await animateReveal();
+  window.dispatchEvent(new Event("page-revealed"));
 }
 
 handleInitialLoad();

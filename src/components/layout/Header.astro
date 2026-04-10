@@ -29,6 +29,10 @@ const navItems = [
 
 const altLang = lang === "zh" ? "en" : "zh";
 const altLangPath = `/${altLang}/`;
+
+// 首頁用純錨點（#about），非首頁加上首頁路徑（/zh/#about）
+const isHome = Astro.url.pathname === `/${lang}/` || Astro.url.pathname === `/${lang}`;
+const navBase = isHome ? "" : `/${lang}/`;
 ---
 
 <header class="header" id="site-header">
@@ -41,7 +45,7 @@ const altLangPath = `/${altLang}/`;
       <nav class="header__nav" aria-label="Main navigation">
         {
           navItems.map((item) => (
-            <a href={`#${item.id}`} class="header__nav-link">
+            <a href={`${navBase}#${item.id}`} class="header__nav-link">
               {item.label[lang]}
             </a>
           ))
