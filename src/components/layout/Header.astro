@@ -108,6 +108,20 @@ const altLangPath = `/${altLang}/`;
       sections.forEach((section) => observer.observe(section));
     }
 
+    // ------------------------------------------------------------------
+    // 入場動畫：隱藏 → 等頁面轉場揭示完成 → ease-out-back 滑入
+    // 來源：good-fella.com header 行為（純 CSS transition + class 切換）
+    // ------------------------------------------------------------------
+    header.classList.add("header--hidden", "header--no-transition");
+    void header.offsetHeight; // 強制 reflow，確保 hidden 狀態套用
+    header.classList.remove("header--no-transition");
+
+    window.addEventListener(
+      "page-revealed",
+      () => header.classList.remove("header--hidden"),
+      { once: true },
+    );
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     initThemeObserver();
@@ -129,6 +143,22 @@ const altLangPath = `/${altLang}/`;
     right: 0;
     z-index: 100;
     padding-top: var(--space-4); // 16px
+
+    // 入場動畫：translateY 控制垂直位移
+    // 來源：good-fella.com header 行為
+    --header-y: 0%;
+    transform: translateY(var(--header-y));
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); // ease-out-back
+  }
+
+  // 隱藏狀態：推到畫面上方
+  .header--hidden {
+    --header-y: -100%;
+  }
+
+  // 頁面轉場期間暫停 transition，避免閃爍
+  .header--no-transition {
+    transition: none;
   }
 
   // ==========================================================================
