@@ -69,6 +69,8 @@ const experiences = [
           ))
         }
       </div>
+      <!-- Experience 黑圓反色游標 -->
+      <div id="experience-cursor" class="experience-cursor" aria-hidden="true"></div>
     </div>
   </div>
 </section>
@@ -143,5 +145,20 @@ const experiences = [
       grid-template-columns: 1fr;
       gap: var(--space-2);
     }
+  }
+
+  // --------------------------------------------------------------------------
+  // Experience Cursor — 黑圓反色
+  // --------------------------------------------------------------------------
+  .experience-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    background: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 100;
+    will-change: transform, opacity;
   }
 </style>
