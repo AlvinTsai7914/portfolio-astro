@@ -38,13 +38,16 @@
   grid-column: 1 / span 12;
 }
 
+// .grid-narrow：mobile-first
+// Mobile（< 768px）：全寬 12 欄
+// Tablet+（≥ 768px）：窄版居中 8 欄（偏移 2 欄 + 占 8 欄）
 .grid-narrow {
-  grid-column: 3 / span 8;
+  grid-column: 1 / span 12;
 }
 
-@media (max-width: 767px) {
+@media (min-width: 768px) {
   .grid-narrow {
-    grid-column: 1 / span 12;
+    grid-column: 3 / span 8;
   }
 }
 
