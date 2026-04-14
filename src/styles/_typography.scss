@@ -22,6 +22,10 @@ body {
 // --------------------------------------------------------------------------
 // Headings
 // 來源：design-dna.md 第 2 節（標題排版細節表）
+//
+// margin-bottom 使用流體間距 token（手機→桌面自動縮放）：
+//   h1: 24→48px、h2: 16→32px、h3-h6: 8→16px
+// 元件內若有特殊間距需求，可用本地 margin-bottom 覆蓋
 // --------------------------------------------------------------------------
 h1 {
   font-family: var(--font-sans);
@@ -29,6 +33,7 @@ h1 {
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.035em;
+  margin-bottom: var(--space-fluid-lg);
 }
 
 h2 {
@@ -37,6 +42,7 @@ h2 {
   font-weight: 500;
   line-height: 1.125;
   letter-spacing: -0.05em;
+  margin-bottom: var(--space-fluid-md);
 }
 
 h3 {
@@ -45,6 +51,7 @@ h3 {
   font-weight: 500;
   line-height: 1.083;
   letter-spacing: -0.05em;
+  margin-bottom: var(--space-fluid-md);
 }
 
 h4 {
@@ -53,6 +60,7 @@ h4 {
   font-weight: 500;
   line-height: 1.25;
   letter-spacing: -0.025em;
+  margin-bottom: var(--space-fluid-sm);
 }
 
 h5 {
@@ -61,6 +69,7 @@ h5 {
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: -0.025em;
+  margin-bottom: var(--space-fluid-sm);
 }
 
 h6 {
@@ -69,4 +78,13 @@ h6 {
   font-weight: 400;
   line-height: 1;
   letter-spacing: -0.05em;
+  margin-bottom: var(--space-fluid-sm);
+}
+
+// --------------------------------------------------------------------------
+// Paragraph
+// 流體間距：8→16px
+// --------------------------------------------------------------------------
+p {
+  margin-bottom: var(--space-fluid-sm);
 }

@@ -63,6 +63,26 @@
   --space-40: 10rem; // 160px
 
   // --------------------------------------------------------------------------
+  // Fluid Spacing — 流體間距（375px → 1600px 線性縮放）
+  // 來源：design-dna.md 第 13 節（基於 good-fella fluid-slope 系統）
+  // 用法：優先使用流體 token，取代固定 --space-* 用於響應式情境
+  // --------------------------------------------------------------------------
+  --fluid-min-w: 375;
+  --fluid-max-w: 1600;
+  --fluid-slope: calc(
+    (100vw - calc(var(--fluid-min-w) * 1px)) /
+    (var(--fluid-max-w) - var(--fluid-min-w))
+  );
+
+  // Mobile 值 → Desktop 值
+  --space-fluid-xs: clamp(4px, calc(4px + (8 - 4) * var(--fluid-slope)), 8px);
+  --space-fluid-sm: clamp(8px, calc(8px + (16 - 8) * var(--fluid-slope)), 16px);
+  --space-fluid-md: clamp(16px, calc(16px + (32 - 16) * var(--fluid-slope)), 32px);
+  --space-fluid-lg: clamp(24px, calc(24px + (48 - 24) * var(--fluid-slope)), 48px);
+  --space-fluid-xl: clamp(32px, calc(32px + (64 - 32) * var(--fluid-slope)), 64px);
+  --space-fluid-2xl: clamp(48px, calc(48px + (96 - 48) * var(--fluid-slope)), 96px);
+
+  // --------------------------------------------------------------------------
   // Section Padding
   // 來源：design-dna.md 第 3 節（Section 間距）
   // Base: 64px / Large (>=1024px): 128px
