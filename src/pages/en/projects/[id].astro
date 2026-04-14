@@ -100,10 +100,11 @@ const { Content } = await render(project);
     max-width: var(--container-2xl);
   }
 
+  // Mobile-first：垂直堆疊；Tablet+ 改水平
   .case-study__meta {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
     flex-wrap: wrap;
     gap: var(--space-4);
   }
@@ -215,10 +216,12 @@ const { Content } = await render(project);
     }
   }
 
-  @media (max-width: 767px) {
+  // Responsive — Tablet+ 水平排列
+  @media (min-width: 768px) {
     .case-study__meta {
-      flex-direction: column;
-      align-items: flex-start;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
     }
   }
 </style>
