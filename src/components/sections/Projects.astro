@@ -130,12 +130,11 @@ const projects = (await getCollection(collectionName))
   // ==========================================================================
   // Local Tokens
   // ==========================================================================
+  // 按鈕尺寸由全域 --btn-size / --btn-gap 控制（mobile 32px / tablet+ 40px）
   $thumb-nav-width: 128px;
   $indicator-size: 12px;
   $parallax-offset: 120px;
   $item-gap: var(--space-16);
-  $btn-icon-size: 40px;
-  $btn-gap: 6px;
   $btn-transition: transform 0.7s cubic-bezier(0.83, 0, 0.17, 1);
 
   // ==========================================================================
@@ -266,26 +265,26 @@ const projects = (await getCollection(collectionName))
     display: inline-flex;
     align-items: center;
     position: relative;
-    gap: $btn-gap;
+    gap: var(--btn-gap);
   }
 
   .projects__view-all-label {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: $btn-icon-size;
+    height: var(--btn-size);
     padding-inline: var(--space-6);
     background-color: var(--color-brand);
     transition: $btn-transition;
-    transform: translateX(calc(-1 * ($btn-icon-size + $btn-gap)));
+    transform: translateX(calc(-1 * (var(--btn-size) + var(--btn-gap))));
   }
 
   .projects__view-all-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: $btn-icon-size;
-    height: $btn-icon-size;
+    width: var(--btn-size);
+    height: var(--btn-size);
     background-color: var(--color-brand);
     transition: $btn-transition;
     font-size: var(--text-body);
