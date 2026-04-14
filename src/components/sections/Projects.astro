@@ -158,26 +158,30 @@ const projects = (await getCollection(collectionName))
   // ==========================================================================
   // Pin Wrapper
   // ==========================================================================
+  // Mobile-first：min-height: auto；Tablet+ 撐滿視窗
   .projects__wrapper {
-    min-height: 100vh;
+    min-height: auto;
   }
 
   // ==========================================================================
-  // 兩欄布局 — 左 3 : 空白 1 : 右 8（12 欄中的比例）
+  // Mobile-first：垂直堆疊（無 sidebar）
+  // Tablet+：兩欄布局 — 左 3 : 空白 1 : 右 8（12 欄中的比例）
   // ==========================================================================
   .projects__layout {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
   }
 
   // ==========================================================================
   // 左側 Sidebar（佔 4/12，其中內容 3 欄 + 間距 1 欄）
+  // Mobile：隱藏；Tablet+ 顯示為 sticky sidebar
   // CSS sticky：右側內容撐高容器，左側自然 sticky 到滾完為止
   // ==========================================================================
   .projects__sidebar {
+    display: none;
     flex: 0 0 calc(4 / 12 * 100%);
     padding-right: var(--space-8);
-    display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: sticky;
@@ -426,26 +430,27 @@ const projects = (await getCollection(collectionName))
   }
 
   // ==========================================================================
-  // Responsive — 手機版
+  // Responsive — Tablet+ 啟用 sticky sidebar 兩欄佈局
   // ==========================================================================
+  @media (min-width: 768px) {
+    .projects__wrapper {
+      min-height: 100vh;
+    }
+
+    .projects__layout {
+      flex-direction: row;
+    }
+
+    .projects__sidebar {
+      display: flex;
+    }
+  }
+
+  // 手機版專屬：bottom padding 對齊 section
   @media (max-width: 767px) {
     .projects-section {
       padding-bottom: var(--section-padding);
     }
-
-    .projects__sidebar {
-      display: none;
-    }
-
-    .projects__layout {
-      flex-direction: column;
-      min-height: auto;
-    }
-
-    .projects__wrapper {
-      min-height: auto;
-    }
-
   }
 </style>
 
