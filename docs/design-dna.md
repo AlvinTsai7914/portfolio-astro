@@ -276,4 +276,212 @@ Stitch 生成的原型與實際實作之間的差異，以下為準：
 
 ---
 
-**最後更新**：2026-03-19
+## 13. Responsive 設計（來源：good-fella.com CSS `8c2d0c1936913601.css`）
+
+### Breakpoints
+
+| 名稱 | 寬度 | 用途 |
+|------|------|------|
+| **Base（mobile）** | `< 640px` | 預設樣式，手機優先 |
+| `sm` | `≥ 640px`（40rem） | Grid margin 調整 |
+| `md` | `≥ 768px`（48rem） | Grid span 切換、flex/hidden 切換 |
+| `lg` | `≥ 1024px`（64rem） | 主要桌面佈局切換、Grid span/start、subgrid |
+| `xl` | `≥ 1280px`（80rem） | parallax/slider 微調 |
+| `2xl` | `≥ 1536px`（96rem） | parallax/slider 微調 |
+
+### Fluid Typography 系統
+
+所有文字尺寸使用 `clamp()` + CSS 自訂 `--fluid-slope` 實現流體縮放：
+
+```css
+--fluid-min-w: 375;   /* 最小視窗寬度 */
+--fluid-max-w: 1600;  /* 最大視窗寬度 */
+--fluid-slope: calc((100vw - 375px) / (1600 - 375));
+```
+
+| Token | 手機（375px） | 桌面（1600px） | 用途 |
+|-------|-------------|--------------|------|
+| `--text-display` | `48px` | `128px` | Hero 主標題 |
+| `--text-h1` | `32px` | `96px` | 大標題 |
+| `--text-h2` | `36px` | `64px` | Section 標題 |
+| `--text-h3` | `28px` | `48px` | 子標題 |
+| `--text-h4` | `28px` | `32px` | 小標題 |
+| `--text-h5` | `20px` | `20px` | 固定大小 |
+| `--text-body-lg` | `18px` | `20px` | 大號內文 |
+| `--text-body` | `16px` | `16px` | 內文（固定） |
+| `--text-body-sm` | `14px` | `14px` | 小號內文（固定） |
+
+### Grid 系統 Responsive
+
+```css
+--site-grid-columns: 12;
+--site-grid-gutter: 1rem;
+--site-grid-margin: 1rem;      /* mobile */
+--site-grid-margin: 1.5rem;    /* ≥ 640px */
+--site-grid-margin: 2rem;      /* ≥ 1024px */
+--site-max-width: 1920px;
+```
+
+Grid span 在不同 breakpoint 的切換：
+- **Mobile（< 768px）**：所有內容預設 `grid-span-12`（全寬）
+- **md（≥ 768px）**：開始出現 `md:grid-span-*`（如 2 欄分割）
+- **lg（≥ 1024px）**：完整 12 欄佈局（`lg:grid-span-*` + `lg:grid-start-*`）、啟用 `subgrid`
+
+### Hero Responsive
+
+```css
+--hero-padding-top: 256px;
+--hero-padding-bottom: 164px;
+--site-header-height: 104px;
+```
+
+根據截圖分析（手機 375px）：
+- 佈局：文字在上、ASCII 在下（垂直堆疊）
+- 文字區塊使用全寬（12 欄）
+- ASCII 區塊保留，非全寬（有左右 margin）
+- CTA 按鈕水平排列（橘色按鈕 + 底線連結）
+- 高度：非強制 100vh，自然撐開
+
+### Header Responsive
+
+```css
+/* ≤ 1023px：Header 隱藏時完全移出視窗 */
+@media (max-width: 1023px) {
+  header.header-hidden { --header-y: -200%; }
+}
+/* ≥ 1024px：預設 -100% 隱藏 */
+```
+
+- **Mobile**：漢堡選單（MENU + 三線圖標）
+- **Desktop（≥ 1024px）**：展開式導覽列
+
+### 關鍵 lg（≥ 1024px）切換
+
+桌面版才啟用的樣式：
+- `lg:flex` / `lg:grid` / `lg:hidden` / `lg:block`：佈局切換
+- `lg:order-none`：重置手機版的 order 排序
+- `lg:col-span-*` / `lg:grid-start-*`：Grid 欄位定位
+- `lg:grid-subgrid`：子元素繼承父 Grid
+- `lg:mt-*` / `lg:mb-*`：間距調整
+- `lg:inline-flex`：CTA 按鈕等元素的顯示方式
+- `lg:relative` / `lg:inset-auto` / `lg:top-header`：定位切換
+- `lg:--gap: 8`（桌面 gap 加大，mobile 為 4）
+
+### 效能相關
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, :before, :after {
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}
+```
+
+### Brand 主題（第三套色彩）
+
+good-fella 有一套額外的品牌色主題（用於特殊區塊）：
+
+| 變數 | 色碼 |
+|------|------|
+| `--color-background` | `#fb460d`（品牌橘） |
+| `--color-foreground` | `#141314`（黑） |
+| `--color-background-muted` | `#fd7142` |
+| `--color-foreground-muted` | `#1a1a1a` |
+| `--color-surface` | `#fd8d68` |
+
+---
+
+## 14. 專案 Responsive 實作規範（本專案適用）
+
+> 此節為本專案的實際實作標準，採 **Mobile-first** 策略。
+
+### 14.1 Breakpoint 系統
+
+| 名稱 | 寬度 | 使用時機 |
+|------|------|---------|
+| **Base（Mobile）** | 預設 | 所有元件的基礎樣式 |
+| **Tablet** | `@media (min-width: 768px)` | 多欄佈局切換、按鈕變大 |
+| **Desktop** | `@media (min-width: 1024px)` | Skills 4 欄、FloatingSocial 顯示、更大間距 |
+
+**原則**：
+- 所有新元件**必須 mobile-first**（`min-width` 寫法）
+- 避免使用 `max-width` 除非有非寫不可的例外（需註解說明）
+- Tablet 與 Desktop 之間只差「細節」（如欄數、間距），不改大佈局
+
+### 14.2 流體間距 Token（統一使用）
+
+| Token | 手機值 | 桌面值 | 典型用途 |
+|-------|--------|--------|---------|
+| `--space-fluid-xs` | 4px | 8px | 極小 gap（圖標之間） |
+| `--space-fluid-sm` | 8px | 16px | 按鈕 gap、段落間 |
+| `--space-fluid-md` | 16px | 32px | 元素間、卡片 padding |
+| `--space-fluid-lg` | 24px | 48px | 標題下方、元件間距 |
+| `--space-fluid-xl` | 32px | 64px | 區塊內大分隔 |
+| `--space-fluid-2xl` | 48px | 96px | Section 內主要分隔 |
+
+**流體縮放範圍**：375px → 1600px（線性插值）
+
+### 14.3 Typography 預設 Margin
+
+h1-h6 與 p 元素已在 `_typography.scss` 設定預設 `margin-bottom`（流體）：
+
+| 元素 | Token | 值 |
+|------|-------|-----|
+| h1 | `--space-fluid-lg` | 24→48px |
+| h2, h3 | `--space-fluid-md` | 16→32px |
+| h4, h5, h6, p | `--space-fluid-sm` | 8→16px |
+
+元件內有特殊需求可用本地 `margin-bottom` 覆蓋。
+
+### 14.4 按鈕尺寸規範
+
+| Token | Mobile | Tablet+ |
+|-------|--------|---------|
+| `--btn-size` | 32px | 40px |
+| `--btn-gap` | 6px | 6px（固定） |
+
+應用於 Hero CTA、Projects View All 等 Primary Button。
+
+### 14.5 Section Padding（已實作）
+
+```scss
+--section-padding: var(--space-16);     // 64px mobile
+@media (min-width: 1024px) {
+  --section-padding: var(--space-32);   // 128px desktop
+}
+```
+
+### 14.6 Grid Margin（已實作）
+
+```scss
+--grid-margin: 1rem;                    // 16px mobile
+@media (min-width: 640px)  { 1.5rem }   // 24px
+@media (min-width: 1024px) { 2rem }     // 32px desktop
+```
+
+### 14.7 各 Section 佈局切換總表
+
+| Section | Mobile | Tablet+（≥768px） | Desktop+（≥1024px） |
+|---------|--------|-----------------|--------------------|
+| **Hero** | 文字上 / ASCII 下堆疊 | ASCII 全螢幕 + 文字疊加 | 同 Tablet |
+| **About** | 1 欄 | 2 欄（3fr 5fr） | 同 Tablet |
+| **Skills** | 1 欄 | 2 欄 | 4 欄 |
+| **Projects** | 垂直卡片堆疊 | Sticky sidebar + 右側卡片 | 同 Tablet |
+| **Experience** | 1 欄（標題/時間/描述堆疊） | 3 欄（3fr 5fr 4fr） | 同 Tablet |
+| **Contact** | 文字全寬 + 連結直排 | 左文字 / 右 ASCII + 連結橫排 | 同 Tablet |
+| **FloatingSocial** | 隱藏 | 隱藏 | 顯示 |
+
+### 14.8 圖片比例規範（固定，不隨視窗縮放）
+
+| 情境 | 比例 | 用途 |
+|------|------|------|
+| Projects 封面 | 16:10 (960/600) | 卡片封面 |
+| About 頭像 | 3:4 | 左側人像 |
+| Contact ASCII | 1400:741 | 右側插圖 |
+| Case Study Hero | 16:9 | 詳細頁封面 |
+
+---
+
+**最後更新**：2026-04-13
