@@ -33,7 +33,7 @@ const t = content[lang];
 ---
 
 <section data-theme="dark" class="hero section" id="hero">
-  <!-- ASCII 視覺效果（桌面版） -->
+  <!-- ASCII 視覺效果 -->
   <div class="hero__ascii" id="hero-ascii"></div>
   <img src="/images/hero/frieren.png" class="hero__ascii-fallback" id="hero-ascii-fallback" alt="" />
   <div class="grid">
@@ -63,19 +63,28 @@ const t = content[lang];
 </section>
 
 <style lang="scss">
+  // Mobile-first: 上下堆疊（文字在上，ASCII 在下）
   .hero {
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
     padding-top: var(--site-header-height);
     position: relative;
     overflow: hidden;
+    background-color: #000;
   }
 
-  // ASCII 視覺效果容器（絕對定位，文字內容疊在上方）
+  // ASCII 視覺效果容器
+  // Mobile：相對定位，排在文字下方（order: 2）
+  // Tablet+：絕對定位，文字疊在上方
   .hero__ascii {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    inset: auto;
+    order: 2;
+    flex: 1;
+    min-height: 40vh;
     z-index: 0;
 
     :global(canvas) {
@@ -87,12 +96,18 @@ const t = content[lang];
 
   .hero__ascii-fallback {
     display: none;
-    position: absolute;
-    inset: 0;
+    position: relative;
+    inset: auto;
+    order: 2;
     width: 100%;
-    height: 100%;
+    height: auto;
+    min-height: 40vh;
     object-fit: contain;
     z-index: 0;
+  }
+
+  .hero > .grid {
+    order: 1;
   }
 
   .hero__content {
@@ -100,6 +115,44 @@ const t = content[lang];
     z-index: 1;
     display: flex;
     flex-direction: column;
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+
+  // --------------------------------------------------------------------------
+  // Tablet+: ASCII 改為全螢幕絕對定位，文字疊在上方
+  // --------------------------------------------------------------------------
+  @media (min-width: 768px) {
+    .hero {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .hero__ascii {
+      position: absolute;
+      inset: 0;
+      order: initial;
+      flex: initial;
+      min-height: auto;
+    }
+
+    .hero__ascii-fallback {
+      position: absolute;
+      inset: 0;
+      order: initial;
+      width: 100%;
+      height: 100%;
+      min-height: auto;
+    }
+
+    .hero > .grid {
+      order: initial;
+    }
+
+    .hero__content {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
   }
 
   .hero__title {

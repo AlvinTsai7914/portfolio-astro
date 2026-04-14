@@ -75,7 +75,7 @@ const categories = [
   // --------------------------------------------------------------------------
   .skills__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 1fr;
     gap: var(--space-12);
   }
 
@@ -122,17 +122,17 @@ const categories = [
   }
 
   // --------------------------------------------------------------------------
-  // Responsive
+  // Responsive — Mobile-first（1→2→4 欄）
   // --------------------------------------------------------------------------
-  @media (max-width: 1023px) {
+  @media (min-width: 768px) {
     .skills__grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  @media (max-width: 767px) {
+  @media (min-width: 1024px) {
     .skills__grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(4, 1fr);
     }
   }
 </style>

@@ -74,7 +74,7 @@ const t = content[lang];
 <style lang="scss">
   .about {
     display: grid;
-    grid-template-columns: 3fr 5fr;
+    grid-template-columns: 1fr;
     gap: var(--space-8);
     align-items: start;
   }
@@ -84,6 +84,7 @@ const t = content[lang];
   // --------------------------------------------------------------------------
   .about__portrait-placeholder {
     width: 100%;
+    max-width: 280px;
     aspect-ratio: 3 / 4;
     background-color: var(--color-surface);
     opacity: 0;
@@ -110,6 +111,7 @@ const t = content[lang];
   // --------------------------------------------------------------------------
   .about__stats {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-8);
     margin-top: var(--space-8);
   }
@@ -135,19 +137,19 @@ const t = content[lang];
   }
 
   // --------------------------------------------------------------------------
-  // Responsive
+  // Responsive — Tablet+（≥ 768px）切換為兩欄佈局
   // --------------------------------------------------------------------------
-  @media (max-width: 767px) {
+  @media (min-width: 768px) {
     .about {
-      grid-template-columns: 1fr;
+      grid-template-columns: 3fr 5fr;
     }
 
     .about__portrait-placeholder {
-      max-width: 280px;
+      max-width: none;
     }
 
     .about__stats {
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
   }
 </style>
