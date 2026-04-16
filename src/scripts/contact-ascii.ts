@@ -27,6 +27,7 @@ import {
   createCharAtlas, createDepthScene, loadTexture,
   ASCII_CELL_SIZE, CHAR_ASPECT, MOUSE_LERP, ASCII_CHARS,
   ASCII_BG_COLOR, ASCII_FG_COLOR, ASCII_COLOR_MIX, ENTRANCE_EASE,
+  MOBILE_BREAKPOINT, MOBILE_CELL_SIZE, MOBILE_DPR,
 } from "../utils/ascii-helpers";
 import depthVert from "../shaders/depth-parallax.vert.glsl?raw";
 import depthFrag from "../shaders/depth-parallax.frag.glsl?raw";
@@ -87,23 +88,29 @@ function cleanup() {
 function initContactAscii() {
   cleanup();
 
-  if (isTouchDevice()) {
-    const container = document.getElementById("contact-ascii");
+  const container = document.getElementById("contact-ascii");
+  if (!container) return;
+
+  // WebGL 不支援時顯示 fallback
+  const testCanvas = document.createElement("canvas");
+  const hasWebGL = !!(testCanvas.getContext("webgl2") || testCanvas.getContext("webgl"));
+  if (!hasWebGL) {
+    container.style.display = "none";
     const fallback = document.getElementById("contact-ascii-fallback");
-    if (container) container.style.display = "none";
     if (fallback) fallback.style.display = "block";
     return;
   }
 
-  const container = document.getElementById("contact-ascii");
-  if (!container) return;
-
   abortController = new AbortController();
   const { signal } = abortController;
 
+  const isTouch = isTouchDevice();
+  const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+
   const w = container.offsetWidth;
   const h = container.offsetHeight;
-  const dpr = Math.min(window.devicePixelRatio, 2);
+  const dpr = isMobile ? MOBILE_DPR : Math.min(window.devicePixelRatio, 2);
+  const cellSize = isMobile ? MOBILE_CELL_SIZE : ASCII_CELL_SIZE;
 
   // Renderer
   glRenderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
@@ -123,7 +130,7 @@ function initContactAscii() {
   const scene2 = new THREE.Scene();
   const camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  const atlas = createCharAtlas(ASCII_CHARS, ASCII_CELL_SIZE * dpr, CHAR_ASPECT);
+  const atlas = createCharAtlas(ASCII_CHARS, cellSize * dpr, CHAR_ASPECT);
   disposables.push(atlas.texture);
 
   const asciiUniforms = {
@@ -185,30 +192,38 @@ function initContactAscii() {
     );
     layers.forEach((l) => disposables.push(l.material, l.geometry));
 
-    // Mouse tracking
+    // Input tracking（滑鼠 or 陀螺儀）
     const targetMouse = new THREE.Vector2(0, 0);
     const currentMouse = new THREE.Vector2(0, 0);
 
-    document.addEventListener(
-      "mousemove",
-      (e: MouseEvent) => {
-        targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    if (isTouch) {
+      // ----------------------------------------------------------------------
+      // 觸控裝置：停用互動（入場動畫完成後停止 render loop，保留最後一幀）
+      // ----------------------------------------------------------------------
+      asciiUniforms.uMouseUv.value.set(-1, -1);
+    } else {
+      // 桌面：滑鼠視差 + hover 光圈
+      document.addEventListener(
+        "mousemove",
+        (e: MouseEvent) => {
+          targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+          targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-        const rect = container.getBoundingClientRect();
-        asciiUniforms.uMouseUv.value.set(
-          (e.clientX - rect.left) / rect.width,
-          1.0 - (e.clientY - rect.top) / rect.height,
-        );
-      },
-      { signal },
-    );
+          const rect = container.getBoundingClientRect();
+          asciiUniforms.uMouseUv.value.set(
+            (e.clientX - rect.left) / rect.width,
+            1.0 - (e.clientY - rect.top) / rect.height,
+          );
+        },
+        { signal },
+      );
 
-    container.addEventListener(
-      "mouseleave",
-      () => { asciiUniforms.uMouseUv.value.set(-1, -1); },
-      { signal },
-    );
+      container.addEventListener(
+        "mouseleave",
+        () => { asciiUniforms.uMouseUv.value.set(-1, -1); },
+        { signal },
+      );
+    }
 
     // IntersectionObserver — 只在可見時渲染
     let isVisible = false;
@@ -275,7 +290,18 @@ function initContactAscii() {
             hasPlayed = true;
             playObserver.disconnect();
 
-            entranceTimeline = gsap.timeline();
+            entranceTimeline = gsap.timeline({
+              onComplete: () => {
+                // 觸控裝置：入場動畫完成後停止 render loop，保留最後一幀
+                if (isTouch) {
+                  if (rafId !== null) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                  }
+                  isVisible = false;
+                }
+              },
+            });
 
             layers.forEach((layer, i) => {
               // Reveal

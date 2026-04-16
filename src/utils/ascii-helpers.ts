@@ -24,6 +24,18 @@ import * as THREE from "three";
 /** ASCII 格子高度（px，不含 DPR）。越小字元越密、細節越多，但 GPU 負擔越重 */
 export const ASCII_CELL_SIZE = 5;
 
+// --------------------------------------------------------------------------
+// 裝置適配（Hero / Contact 共用）
+// --------------------------------------------------------------------------
+/** 手機版判定斷點 */
+export const MOBILE_BREAKPOINT = 768;
+
+/** 手機版 ASCII 格子高度（比桌面版大 → 字元更少 → 效能更好） */
+export const MOBILE_CELL_SIZE = 6;
+
+/** 手機版 DPR 上限（效能優先） */
+export const MOBILE_DPR = 1;
+
 /** 等寬字體的寬高比（寬 ≈ 0.6 × 高） */
 export const CHAR_ASPECT = 0.6;
 
