@@ -63,28 +63,29 @@ const t = content[lang];
 </section>
 
 <style lang="scss">
-  // Mobile-first: 上下堆疊（文字在上，ASCII 在下）
+  // Mobile-first：100vh 滿版，ASCII 絕對定位（文字與 ASCII 可重疊）
+  // 覆蓋 .section 的 padding-block，Hero 用自己的 padding 邏輯
   .hero {
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
+    align-items: flex-start;
     padding-top: var(--site-header-height);
+    padding-bottom: 0;
     position: relative;
     overflow: hidden;
     background-color: #000;
   }
 
   // ASCII 視覺效果容器
-  // Mobile：相對定位，排在文字下方（order: 2）
-  // Tablet+：絕對定位，文字疊在上方
+  // Mobile：錨定底部，佔 65% 高度（文字在上方，可微幅重疊）
+  // Tablet+：填滿整個 Hero
   .hero__ascii {
-    position: relative;
-    inset: auto;
-    order: 2;
-    flex: 1;
-    min-height: 40vh;
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65%;
     z-index: 0;
 
     :global(canvas) {
@@ -96,62 +97,66 @@ const t = content[lang];
 
   .hero__ascii-fallback {
     display: none;
-    position: relative;
-    inset: auto;
-    order: 2;
-    width: 100%;
-    height: auto;
-    min-height: 40vh;
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65%;
     object-fit: contain;
     z-index: 0;
   }
 
+  // Flex 容器內 .grid 需要明確撐滿寬度
   .hero > .grid {
-    order: 1;
+    width: 100%;
   }
 
+  // Mobile：緊湊間距；Tablet+ 恢復寬鬆
   .hero__content {
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-8);
+    padding-top: var(--space-4);
   }
 
   // --------------------------------------------------------------------------
-  // Tablet+: ASCII 改為全螢幕絕對定位，文字疊在上方
+  // Tablet+: 文字垂直居中
   // --------------------------------------------------------------------------
   @media (min-width: 768px) {
     .hero {
-      flex-direction: row;
       align-items: center;
     }
 
     .hero__ascii {
-      position: absolute;
-      inset: 0;
-      order: initial;
-      flex: initial;
-      min-height: auto;
+      top: 0;
+      height: 100%;
     }
 
     .hero__ascii-fallback {
-      position: absolute;
-      inset: 0;
-      order: initial;
-      width: 100%;
+      top: 0;
       height: 100%;
-      min-height: auto;
-    }
-
-    .hero > .grid {
-      order: initial;
     }
 
     .hero__content {
       padding-top: 0;
-      padding-bottom: 0;
+    }
+
+    .hero__title {
+      margin-left: -10px;
+    }
+
+    .hero__content h1 {
+      margin-bottom: var(--space-fluid-lg);
+    }
+
+    .hero__name {
+      margin-bottom: var(--space-4);
+    }
+
+    .hero__tagline {
+      margin-bottom: var(--space-8);
     }
   }
 
@@ -161,14 +166,19 @@ const t = content[lang];
     font-weight: 400;
     line-height: 1.1;
     letter-spacing: -0.035em;
-    margin-left: -10px;
+    margin-left: 0;
+  }
+
+  // 覆蓋全域 h1 margin，手機版壓縮
+  .hero__content h1 {
+    margin-bottom: var(--space-2);
   }
 
   .hero__name {
     font-family: var(--font-mono);
     font-size: var(--text-h4);
     color: var(--color-foreground-muted);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
     opacity: 0;
   }
 
@@ -176,7 +186,7 @@ const t = content[lang];
     font-size: var(--text-body-lg);
     color: var(--color-foreground-muted);
     max-width: var(--container-2xl);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-4);
     opacity: 0;
   }
 

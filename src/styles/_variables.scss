@@ -138,7 +138,7 @@
   // Header
   // 來源：design-dna.md 第 7 節
   // --------------------------------------------------------------------------
-  --site-header-height: 104px;
+  --site-header-height: 72px;
 }
 
 // Responsive overrides
@@ -151,6 +151,7 @@
 @media (min-width: 768px) {
   :root {
     --btn-size: 40px;
+    --site-header-height: 104px;
   }
 }
 

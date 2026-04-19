@@ -38,6 +38,9 @@ import asciiFrag from "../shaders/ascii-contact.frag.glsl?raw";
 // Contact 專用常數（共用常數在 ascii-helpers.ts）
 // --------------------------------------------------------------------------
 
+/** 桌面版 cell size（比共用的 5 大，補償 width:120% CSS 縮放） */
+const DESKTOP_CELL_SIZE = 5;
+
 /** 視差移動量（比 Hero 的 0.03 小，因為 2D 平移不需要太大偏移） */
 const PARALLAX_INTENSITY = 0.008;
 
@@ -110,7 +113,7 @@ function initContactAscii() {
   const w = container.offsetWidth;
   const h = container.offsetHeight;
   const dpr = isMobile ? MOBILE_DPR : Math.min(window.devicePixelRatio, 2);
-  const cellSize = isMobile ? MOBILE_CELL_SIZE : ASCII_CELL_SIZE;
+  const cellSize = isMobile ? MOBILE_CELL_SIZE : DESKTOP_CELL_SIZE;
 
   // Renderer
   glRenderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });

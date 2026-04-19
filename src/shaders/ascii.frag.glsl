@@ -120,8 +120,21 @@ void main() {
     return;
   }
 
+  // ---- 亮度截斷 + 對比度增強 ----
+  // 低亮度像素直接捨棄（不渲染字元），產生「從黑色中浮現」的效果
+  float cutoff = 0.1;       // 低於此亮度 → 純背景
+  float contrast = 1.0;      // 對比度增強倍率
+  float adjustedBrightness = (finalBrightness - cutoff) / (1.0 - cutoff); // 重新映射到 0-1
+  adjustedBrightness = clamp(adjustedBrightness, 0.0, 1.0);
+  adjustedBrightness = pow(adjustedBrightness, 1.0 / contrast); // gamma 增強亮部
+
+  if (adjustedBrightness < 0.01) {
+    gl_FragColor = vec4(uBgColor, 1.0);
+    return;
+  }
+
   // ---- ASCII 字元渲染 ----
-  float charAlpha = getCharAlpha(finalBrightness, cellUv);
+  float charAlpha = getCharAlpha(adjustedBrightness, cellUv);
   vec3 charColor = mix(uFgColor, sourceColor, uColorMix);
 
   // ---- Hover 光圈 ----

@@ -169,11 +169,12 @@ const navBase = isHome ? "" : `/${lang}/`;
   // Header Bar — 內層
   // 控制顏色、寬度和 transition
   // ==========================================================================
+  // Mobile-first：56px → Tablet+ 72px
   .header__bar {
     display: flex;
     align-items: center;
-    height: 72px;
-    padding-inline: var(--space-8);
+    height: 56px;
+    padding-inline: var(--space-4);
     margin-inline: 0; // 頂部：滿版
     transition:
       margin 0.4s var(--ease-out),
@@ -191,6 +192,16 @@ const navBase = isHome ? "" : `/${lang}/`;
 
   .header__bar--light {
     color: #333;
+  }
+
+  // --------------------------------------------------------------------------
+  // Tablet+：恢復桌面尺寸
+  // --------------------------------------------------------------------------
+  @media (min-width: 768px) {
+    .header__bar {
+      height: 72px;
+      padding-inline: var(--space-8);
+    }
   }
 
   // --------------------------------------------------------------------------

@@ -98,8 +98,20 @@ void main() {
     return;
   }
 
+  // ---- 亮度截斷 + 對比度增強 ----
+  float cutoff = 0.15;
+  float contrast = 1.5;
+  float adjustedBrightness = (finalBrightness - cutoff) / (1.0 - cutoff);
+  adjustedBrightness = clamp(adjustedBrightness, 0.0, 1.0);
+  adjustedBrightness = pow(adjustedBrightness, 1.0 / contrast);
+
+  if (adjustedBrightness < 0.01) {
+    gl_FragColor = vec4(0.0);
+    return;
+  }
+
   // ---- ASCII 字元渲染 ----
-  float charAlpha = getCharAlpha(finalBrightness, cellUv);
+  float charAlpha = getCharAlpha(adjustedBrightness, cellUv);
   vec3 charColor = mix(uFgColor, sourceColor, uColorMix);
 
   // ---- Hover 光圈 ----

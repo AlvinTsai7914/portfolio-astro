@@ -49,7 +49,7 @@ const links = [
 ];
 ---
 
-<section data-theme="dark" class="" id="contact">
+<section data-theme="dark" class="contact-section" id="contact">
   <div class="grid">
     <!-- 左側：文字內容 -->
     <div class="contact__content">
@@ -84,9 +84,24 @@ const links = [
 
 <style lang="scss">
   // --------------------------------------------------------------------------
+  // Section Padding
+  // --------------------------------------------------------------------------
+  // Mobile：僅 padding-top（底部由 ASCII 自然收尾）
+  // Desktop：無 padding（ASCII 撐開高度）
+  .contact-section {
+    padding-top: var(--section-padding);
+  }
+
+  @media (min-width: 768px) {
+    .contact-section {
+      padding-top: 0;
+    }
+  }
+
+  // --------------------------------------------------------------------------
   // 雙欄佈局
   // --------------------------------------------------------------------------
-  // Mobile-first：文字全寬、ASCII 隱藏；Tablet+ 切回雙欄
+  // Mobile-first：文字全寬 + ASCII 全寬（上下堆疊）；Tablet+ 切回左右雙欄
   .contact__content {
     grid-column: 1 / span 12;
     display: flex;
@@ -95,14 +110,23 @@ const links = [
   }
 
   .contact__ascii-wrapper {
-    display: none;
+    grid-column: 1 / span 12;
     position: relative;
     aspect-ratio: 1400 / 741; // 匹配 frieren-group 圖片比例
+    margin-top: var(--space-8);
+
+    // Mobile：wrapper 撐滿視窗寬，內層 ASCII 超寬置中裁切
+    width: 100vw;
+    margin-left: calc(-1 * var(--grid-margin));
+    overflow: hidden;
   }
 
   .contact__ascii {
     position: absolute;
     inset: 0;
+    width: 120%;
+    left: 50%;
+    transform: translateX(-50%);
 
     :global(canvas) {
       width: 100%;
@@ -115,7 +139,9 @@ const links = [
     display: none;
     position: absolute;
     inset: 0;
-    width: 100%;
+    width: 120%;
+    left: 50%;
+    transform: translateX(-50%);
     height: 100%;
     object-fit: contain;
   }
@@ -179,8 +205,23 @@ const links = [
     }
 
     .contact__ascii-wrapper {
-      display: block;
       grid-column: 5 / span 8;
+      margin-top: 0;
+      width: auto;
+      margin-left: 0;
+      overflow: visible;
+    }
+
+    .contact__ascii {
+      width: 100%;
+      left: 0;
+      transform: none;
+    }
+
+    .contact__ascii-fallback {
+      width: 100%;
+      left: 0;
+      transform: none;
     }
 
     .contact__links {
