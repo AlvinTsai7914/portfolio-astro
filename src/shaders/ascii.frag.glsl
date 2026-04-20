@@ -79,7 +79,7 @@ void main() {
   vec2 staffDiff = vUv - uStaffCenter;
   staffDiff.x *= uViewportAspect; // 修正寬高比
   float staffDist = length(staffDiff);
-  float staffMaxDist = length(vec2(uViewportAspect, 1.0)) * 0.35; // 擴散範圍上限
+  float staffMaxDist = length(vec2(uViewportAspect, 1.0)) * 0.5; // 擴散範圍上限（0.5 確保手機窄視窗也能涵蓋法杖右上角）
   float staffOrder = staffDist / staffMaxDist;
   float edge2 = 0.08;
   float threshold2 = uReveal2 * (1.0 + edge2 * 2.0);
