@@ -173,30 +173,23 @@ const projects = (await getCollection(collectionName))
   }
 
   // ==========================================================================
-  // 左側 Sidebar（佔 4/12，其中內容 3 欄 + 間距 1 欄）
-  // Mobile：隱藏；Tablet+ 顯示為 sticky sidebar
-  // CSS sticky：右側內容撐高容器，左側自然 sticky 到滾完為止
+  // 左側 Sidebar
+  // Mobile：顯示標題區 + View All 按鈕（小圖 Nav 隱藏），垂直堆疊於專案列表上方
+  // Tablet+：佔 4/12 欄，sticky sidebar，右側內容撐高容器，左側自然 sticky 到滾完為止
   // ==========================================================================
   .projects__sidebar {
-    display: none;
-    flex: 0 0 calc(4 / 12 * 100%);
-    padding-right: var(--space-8);
+    display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    position: sticky;
-    top: var(--site-header-height);
-    align-self: flex-start;
-    min-height: calc(100dvh - var(--site-header-height));
-    padding-top: var(--space-4);
-    padding-bottom: var(--space-8);
-    overflow-y: auto;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
   }
 
   // --------------------------------------------------------------------------
   // 小圖 Nav
   // --------------------------------------------------------------------------
+  // Mobile：隱藏小圖 Nav 與指示器；Tablet+ 顯示
   .projects__nav {
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: var(--space-4);
     position: relative;
@@ -441,6 +434,21 @@ const projects = (await getCollection(collectionName))
     }
 
     .projects__sidebar {
+      flex: 0 0 calc(4 / 12 * 100%);
+      padding-right: var(--space-8);
+      justify-content: space-between;
+      position: sticky;
+      top: var(--site-header-height);
+      align-self: flex-start;
+      min-height: calc(100dvh - var(--site-header-height));
+      padding-top: var(--space-4);
+      padding-bottom: var(--space-8);
+      overflow-y: auto;
+      gap: 0;
+      margin-bottom: 0;
+    }
+
+    .projects__nav {
       display: flex;
     }
   }
