@@ -30,8 +30,8 @@ export const ASCII_CELL_SIZE = 5;
 /** 手機版判定斷點 */
 export const MOBILE_BREAKPOINT = 768;
 
-/** 手機版 ASCII 格子高度（比桌面版大 → 字元更少 → 效能更好） */
-export const MOBILE_CELL_SIZE = 6;
+/** 手機版 ASCII 格子高度（小於桌面版 5；更小 = 字元更密、GPU 負擔更重） */
+export const MOBILE_CELL_SIZE = 4;
 
 /** 手機版 DPR 上限（效能優先） */
 export const MOBILE_DPR = 1;
