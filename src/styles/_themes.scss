@@ -72,6 +72,10 @@
 // --------------------------------------------------------------------------
 // Custom Cursor — 情境式 Hover 徽章
 // 來源：src/scripts/custom-cursor.ts
+//
+// Touch 裝置(手機/平板):custom-cursor.ts 會 early return 不初始化 transform,
+// 此時 cursor 會停在 (0, 0) 並以空 padding 顯示成一個橘色方塊 → 手機左上角出現橘色小格
+// 解法:hover:none 裝置直接隱藏整個 cursor 容器
 // --------------------------------------------------------------------------
 .custom-cursor {
   position: fixed;
@@ -80,6 +84,12 @@
   z-index: 9999;
   pointer-events: none;
   will-change: transform;
+}
+
+@media (hover: none) {
+  .custom-cursor {
+    display: none;
+  }
 }
 
 .custom-cursor__text {
