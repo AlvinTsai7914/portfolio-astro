@@ -302,5 +302,26 @@ function initTextScramble() {
   });
 }
 
+// --------------------------------------------------------------------------
+// 程式化觸發:將 el 的文字以亂碼動畫切換成 targetText
+// 用於動態切換的場合(如 mobile menu 開合時 logo 文字「YourName ⇄ Hello World」)
+// --------------------------------------------------------------------------
+export function scrambleTo(
+  el: HTMLElement,
+  targetText: string,
+  options: Partial<ScrambleOptions> = {},
+): Promise<void> {
+  const resolved: ScrambleOptions = {
+    duration: options.duration ?? DEFAULT_DURATION,
+    stagger: options.stagger ?? 0,
+    delay: options.delay ?? 0,
+    hold: options.hold ?? 0,
+    chars: options.chars ?? DEFAULT_CHARS,
+  };
+  // 改寫 dataset.scrambleText → scrambleElement 以此為最終文字
+  el.dataset.scrambleText = targetText;
+  return scrambleElement(el, resolved);
+}
+
 initTextScramble();
 document.addEventListener("astro:page-load", initTextScramble);

@@ -1,0 +1,192 @@
+---
+// ==========================================================================
+// MobileMenu — 手機版全螢幕導覽 overlay
+// 來源:good-fella.com 手機版 MENU 抽屜風格
+//
+// 結構:全螢幕深色 overlay + 大字 nav + 聯絡連結
+// 當前 section 橘色 ▪ 方塊 + 橘色文字(由 mobile-menu.ts 的 IntersectionObserver 控制)
+// clip-path 從頂部展開 + 項目 stagger 浮現
+//
+// 邏輯:src/scripts/mobile-menu.ts
+// ==========================================================================
+
+interface Props {
+  lang?: "zh" | "en";
+}
+
+const { lang = "zh" } = Astro.props;
+
+const navItems = [
+  { id: "about", label: { zh: "關於", en: "About" } },
+  { id: "skills", label: { zh: "技能", en: "Skills" } },
+  { id: "projects", label: { zh: "作品", en: "Projects" } },
+  { id: "experience", label: { zh: "經歷", en: "Experience" } },
+  { id: "contact", label: { zh: "聯繫", en: "Contact" } },
+];
+
+const isHome = Astro.url.pathname === `/${lang}/` || Astro.url.pathname === `/${lang}`;
+const navBase = isHome ? "" : `/${lang}/`;
+
+const contactLinks = [
+  { label: "hello@example.com", href: "mailto:hello@example.com" },
+  { label: "GitHub", href: "https://github.com/" },
+  { label: "LinkedIn", href: "https://linkedin.com/" },
+];
+---
+
+<div
+  class="mobile-menu"
+  id="mobile-menu"
+  aria-hidden="true"
+  data-astro-transition-persist="mobile-menu"
+>
+  <div class="mobile-menu__inner">
+    <nav class="mobile-menu__nav" aria-label="Mobile navigation">
+      {
+        navItems.map((item) => (
+          <a
+            href={`${navBase}#${item.id}`}
+            class="mobile-menu__link"
+            data-section={item.id}
+          >
+            <span class="mobile-menu__indicator" aria-hidden="true" />
+            <span class="mobile-menu__link-text">{item.label[lang]}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="mobile-menu__contact">
+      {
+        contactLinks.map((link) => (
+          <a
+            href={link.href}
+            class="mobile-menu__contact-link"
+            target={link.href.startsWith("http") ? "_blank" : undefined}
+            rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style lang="scss">
+  // ==========================================================================
+  // Overlay — 全螢幕,clip-path 從頂展開
+  // ==========================================================================
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 99; // header z-index: 100 在其上
+    background-color: #141314; // 固定深色(與 dark theme 一致)
+    color: #eee;
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 0.4s var(--ease-out);
+    pointer-events: none;
+    overflow-y: auto;
+
+    &.is-open {
+      clip-path: inset(0);
+      pointer-events: auto;
+    }
+  }
+
+  .mobile-menu__inner {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: calc(var(--site-header-height) + var(--space-8)) var(--space-6) var(--space-8);
+    gap: var(--space-8);
+  }
+
+  // ==========================================================================
+  // Nav 項目
+  // ==========================================================================
+  .mobile-menu__nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  // stagger-delay 只套在 opacity/transform 上(入場動畫需要),color 永遠無 delay
+  // (避免點擊切換 active 時,color 也被 stagger delay 拖慢)
+  .mobile-menu__link {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-h3);
+    font-weight: var(--font-weight-medium);
+    color: #aaa;
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(24px);
+    --stagger-delay: 0s;
+    transition:
+      opacity 0.4s var(--ease-out) var(--stagger-delay),
+      transform 0.4s var(--ease-out) var(--stagger-delay),
+      color 0.15s var(--transition-timing) 0s;
+
+    &.is-active {
+      color: #fd551d; // 品牌色(dark theme 版)
+    }
+  }
+
+  // Indicator:inactive 時 width/margin 0 → 文字齊左;active 時展開「推」文字往右
+  .mobile-menu__indicator {
+    display: inline-block;
+    width: 0;
+    height: 12px;
+    background-color: #fd551d;
+    flex-shrink: 0;
+    margin-right: 0;
+    transition:
+      width 0.3s var(--ease-out),
+      margin-right 0.3s var(--ease-out);
+  }
+
+  .mobile-menu__link.is-active .mobile-menu__indicator {
+    width: 12px;
+    margin-right: var(--space-3);
+  }
+
+  // 開啟時 stagger delay(關閉時延遲歸零,項目立即隱藏,overlay 再收合)
+  .mobile-menu.is-open .mobile-menu__link {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .mobile-menu.is-open .mobile-menu__link:nth-child(1) { --stagger-delay: 0.2s; }
+  .mobile-menu.is-open .mobile-menu__link:nth-child(2) { --stagger-delay: 0.28s; }
+  .mobile-menu.is-open .mobile-menu__link:nth-child(3) { --stagger-delay: 0.36s; }
+  .mobile-menu.is-open .mobile-menu__link:nth-child(4) { --stagger-delay: 0.44s; }
+  .mobile-menu.is-open .mobile-menu__link:nth-child(5) { --stagger-delay: 0.52s; }
+
+  // ==========================================================================
+  // Contact 連結(底部)
+  // ==========================================================================
+  .mobile-menu__contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-6);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out);
+    transition-delay: 0s;
+  }
+
+  .mobile-menu.is-open .mobile-menu__contact {
+    opacity: 1;
+    transition-delay: 0.65s;
+  }
+
+  .mobile-menu__contact-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-body);
+    color: #aaa;
+    text-decoration: none;
+  }
+</style>

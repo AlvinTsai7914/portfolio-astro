@@ -15,6 +15,12 @@ gsap.registerPlugin(ScrollTrigger);
 
 const MOBILE_BREAKPOINT = 768;
 
+declare global {
+  interface Window {
+    __lenis?: Lenis | null;
+  }
+}
+
 let lenis: Lenis | null = null;
 let rafCallback: ((time: number) => void) | null = null;
 
@@ -26,6 +32,7 @@ function initSmoothScroll() {
   }
   lenis?.destroy();
   lenis = null;
+  window.__lenis = null;
 
   if (window.innerWidth < MOBILE_BREAKPOINT) return;
 
@@ -41,6 +48,9 @@ function initSmoothScroll() {
   };
   gsap.ticker.add(rafCallback);
   gsap.ticker.lagSmoothing(0);
+
+  // 暴露給 mobile-menu.ts(menu 開啟時 stop 避免背景 scroll,關閉後 scrollTo 目標 section)
+  window.__lenis = lenis;
 }
 
 initSmoothScroll();

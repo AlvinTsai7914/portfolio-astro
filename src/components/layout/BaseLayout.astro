@@ -7,6 +7,7 @@
 import { ClientRouter } from "astro:transitions";
 import "../../styles/global.scss";
 import Header from "./Header.astro";
+import MobileMenu from "./MobileMenu.astro";
 import Footer from "./Footer.astro";
 import FloatingSocial from "../ui/FloatingSocial.astro";
 
@@ -48,6 +49,7 @@ const {
   </head>
   <body>
     <Header lang={lang} />
+    <MobileMenu lang={lang} />
     <FloatingSocial />
     <main>
       <slot />
@@ -69,6 +71,7 @@ const {
     <script src="../../scripts/reveal-animation.ts"></script>
     <script src="../../scripts/smooth-scroll.ts"></script>
     <script src="../../scripts/text-scramble.ts"></script>
+    <script src="../../scripts/mobile-menu.ts"></script>
     <script src="../../scripts/custom-cursor.ts"></script>
     <script src="../../scripts/scroll-fade.ts"></script>
     <script src="../../scripts/experience-cursor.ts"></script>
