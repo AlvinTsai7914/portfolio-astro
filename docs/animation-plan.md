@@ -1,6 +1,6 @@
 # 動畫規劃
 
-**最後更新**：2026-03-25
+**最後更新**:2026-04-27
 
 ---
 
@@ -150,12 +150,26 @@
 
 ## 7. Text Scramble
 
-**狀態**：✅ 已完成
+**狀態**:✅ 已完成
 
-- `src/scripts/text-scramble.ts`，純 JS 實作（good-fella 同款字元集）
-- 支援 hover / scroll / immediate 三種觸發，可組合
+- `src/scripts/text-scramble.ts`,純 JS 實作(good-fella 同款字元集)
+- 支援 hover / scroll / immediate 三種觸發,可組合
 - 支援 delay、hold、duration、stagger、自訂字元集
-- 應用：Hero CTA、Projects View All（hover）、Contact 連結（scroll + hover）
+- 應用:Hero CTA、Projects View All(hover)、Contact 連結(scroll + hover)
+
+### 7.1 程式化觸發 API:`scrambleTo`
+
+除了 `data-scramble` 屬性,新增 export:
+```ts
+import { scrambleTo } from "./text-scramble";
+scrambleTo(el, "新文字", { duration: 0.4, hold: 0 });
+```
+
+用於需要「動態切換目標文字」的場合,內部會更新 `dataset.scrambleText` 後跑 scramble。
+
+**目前使用點**:
+- `mobile-menu.ts`:logo `YourName` ⇄ `Hello World`(menu 開合時)
+- `projects-list.ts`:hero title 切換到 active 卡片名(slider 切換時)
 
 ---
 
@@ -182,9 +196,40 @@
 
 ## 10. Contact ASCII 視覺效果
 
-**狀態**：✅ 已完成
+**狀態**:✅ 已完成
 
 - `src/scripts/contact-ascii.ts` + `src/shaders/ascii-contact.frag.glsl`
-- 3 圖層角色依序出現（ScrollTrigger 觸發）
-- 2D 平移（無 depth map）、圖層交錯移動方向
+- 3 圖層角色依序出現(ScrollTrigger 觸發)
+- 2D 平移(無 depth map)、圖層交錯移動方向
 - 透明背景融入 section、雙欄佈局
+
+---
+
+## 11. MobileMenu Overlay 動畫
+
+**狀態**:✅ 已完成
+
+詳細文件:`docs/mobile-menu.md`
+
+關鍵動畫:
+- **Overlay 展開**:`clip-path` 從 `inset(0 0 100% 0)` → `inset(0)`,0.4s ease-out
+- **Nav 項目 stagger**:每項 opacity + translateY,delay 從 0.2s 起每項 +0.08s(用 CSS 變數 `--stagger-delay` 隔離,避免影響 color transition)
+- **Indicator「推」效果**:active 項目的方塊從 width 0 → 12px + margin-right 0 → 12px,把文字往右推
+- **Logo 文字切換**:`scrambleTo(logo, "Hello World")`,0.4s
+- **Header bar 收縮**:menu 開時觸發 margin-inline + 半透明背景 + blur(複用 `.header--scrolled` 視覺)
+
+---
+
+## 12. Projects 列表頁 Slider + 視差
+
+**狀態**:✅ Phase 1~3 完成 / ⏳ Phase 4 (View Transitions) 未做
+
+詳細文件:`docs/projects-list-page.md`
+
+關鍵動畫:
+- **Embla Carousel**(~10KB)處理 slide 切換動畫(`duration: 30` ≈ 0.3s 感)、拖曳慣性、邊界回彈
+- **位置式視差**:每張卡片內圖根據 Embla `scrollProgress` 計算 translateX,範圍 ±0~240px(PARALLAX_OFFSET = 120,最遠 2 卡 × 120)
+- **Hero title scramble**:slider 切換到 active 卡時,`scrambleTo(hero, title, { duration: 0.4 })`
+- **active opacity 切換**:卡片 0.4 → 1,CSS transition 0.4s
+- **進度條 fill**:width 0 → 100%,transition 0.6s
+- **Mode 切換(Phase 4 未做)**:Slider ↔ Grid 將用 `document.startViewTransition()` + `view-transition-name` 做卡片飛位
