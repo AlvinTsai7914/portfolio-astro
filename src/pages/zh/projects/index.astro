@@ -1,0 +1,431 @@
+---
+// ==========================================================================
+// 中文專案列表頁 — /zh/projects/
+// 雙模式:Slider(預設)/ Grid,localStorage 記住
+// 動畫:View Transitions API + GSAP FLIP 降級(見 src/scripts/projects-list.ts)
+//
+// 此檔只處理靜態 DOM 結構與 CSS。mode 切換、slider 互動、scramble 由 JS 控制。
+// ==========================================================================
+
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../components/layout/BaseLayout.astro";
+import SectionLabel from "../../../components/ui/SectionLabel.astro";
+import RevealText from "../../../components/ui/RevealText.astro";
+
+const projects = (await getCollection("projects-zh"))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const total = String(projects.length).padStart(2, "0");
+---
+
+<BaseLayout title="精選作品 — YourName" description="所有作品總覽" lang="zh">
+  <section class="projects-list section" data-theme="dark">
+    <!-- Hero(兩 mode 共用) -->
+    <div class="grid">
+      <div class="grid-full">
+        <div class="projects-list__hero">
+          <RevealText delay={0.1}><SectionLabel text="Work" /></RevealText>
+          <RevealText pt="var(--space-3)" mb="var(--space-4)">
+            <h1 class="projects-list__headline">精選作品</h1>
+          </RevealText>
+          <p class="projects-list__desc">由概念到上線的完整實踐。</p>
+
+          <!-- View Mode Toggle -->
+          <div class="view-toggle" role="radiogroup" aria-label="切換檢視模式">
+            <button type="button" class="view-toggle__btn" data-mode="slider" aria-pressed="true">Slider</button>
+            <button type="button" class="view-toggle__btn" data-mode="grid" aria-pressed="false">Grid</button>
+          </div>
+
+          <!-- Slider 專用:active 卡片大標題 -->
+          <h2 class="slider-active-title" id="slider-active-title">{projects[0].data.title}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects list container(mode 由 class 控制) -->
+    <div class="projects-list__wrap" id="projects-list-wrap">
+      <div class="projects-list__container mode-slider" id="projects-list" data-view="slider">
+        {projects.map((p, i) => (
+          <article class="project-card" data-slug={p.data.slug} data-index={i}>
+            <a href={`/zh/projects/${p.data.slug}/`} class="project-card__link" data-cursor-text="查看作品">
+              {/* view-transition-name 不放靜態 HTML,避免 SPA 頁面切換時卡片浮在 page-transition 遮罩上方。
+                  Phase 4(slider↔grid 切換動畫)需要時由 JS 動態 setProperty 後再清除 */}
+              <div class="project-card__cover">
+                <div class="project-card__img-wrap">
+                  {p.data.cover ? (
+                    <img src={p.data.cover} alt={p.data.title} class="project-card__img" loading="lazy" draggable="false" />
+                  ) : (
+                    <div class="project-card__img-placeholder" />
+                  )}
+                </div>
+              </div>
+              <div class="project-card__meta">
+                <h3 class="project-card__title">
+                  {p.data.title}
+                </h3>
+                <div class="project-card__tags">
+                  {p.data.tags.map((tag: string) => (
+                    <span class="project-card__tag">{tag}</span>
+                  ))}
+                </div>
+                <p class="project-card__desc">{p.data.description}</p>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- Slider 控制列(Grid mode 隱藏):prev/next + 進度條 -->
+    <div class="grid">
+      <div class="grid-full">
+        <div class="slider-controls" id="slider-controls">
+          <div class="slider-nav">
+            <button type="button" class="slider-nav__btn" data-slider-prev aria-label="前一個專案">←</button>
+            <button type="button" class="slider-nav__btn" data-slider-next aria-label="下一個專案">→</button>
+          </div>
+          <div class="slider-progress" id="slider-progress">
+            <div class="slider-progress__bar" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax={projects.length}>
+              <div class="slider-progress__bar-fill"></div>
+            </div>
+            <span class="slider-progress__count">
+              <span id="slider-progress-current">01</span> / {total}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style lang="scss">
+  // ==========================================================================
+  // Section
+  // ==========================================================================
+  .projects-list {
+    padding-top: calc(var(--site-header-height) + var(--space-16));
+    padding-bottom: var(--section-padding);
+    min-height: 100vh;
+  }
+
+  // ==========================================================================
+  // Hero
+  // ==========================================================================
+  .projects-list__hero {
+    margin-bottom: var(--space-12);
+  }
+
+  .projects-list__headline {
+    font-size: var(--text-h1);
+    margin: 0;
+  }
+
+  .projects-list__desc {
+    font-size: var(--text-body-lg);
+    color: var(--color-foreground-muted);
+    margin-bottom: var(--space-8);
+  }
+
+  // --------------------------------------------------------------------------
+  // View Mode Toggle
+  // --------------------------------------------------------------------------
+  .view-toggle {
+    display: inline-flex;
+    gap: 0;
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-full);
+    padding: var(--space-1);
+    margin-bottom: var(--space-6);
+  }
+
+  .view-toggle__btn {
+    padding: var(--space-2) var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    color: var(--color-foreground-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition:
+      color var(--transition-duration) var(--transition-timing),
+      background-color var(--transition-duration) var(--transition-timing);
+
+    &[aria-pressed="true"] {
+      background-color: var(--color-foreground);
+      color: var(--color-background);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Slider Active Title(只在 slider mode 顯示)
+  // --------------------------------------------------------------------------
+  .slider-active-title {
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-regular);
+    letter-spacing: -0.03em;
+    margin: 0;
+    min-height: 1em; // 預留空間避免 scramble 時跳動
+  }
+
+  // ==========================================================================
+  // Projects List Container(共用 DOM,mode 切換 class)
+  // ==========================================================================
+  // wrap 當 slider 的 viewport(overflow: hidden),container 做 translateX
+  .projects-list__wrap {
+    margin-block: var(--space-8);
+    overflow: hidden;
+  }
+
+  // --------------------------------------------------------------------------
+  // Mode: Slider(水平排列 + GSAP translateX)
+  // Mobile: active 90vw + 兩側各 5vw peek
+  // Tablet: active 75vw + 兩側各 12.5vw peek
+  // Desktop: active 65vw + 兩側各 17.5vw peek
+  // --------------------------------------------------------------------------
+  .projects-list__container.mode-slider {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    will-change: transform;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    // 縱向滑頁交給瀏覽器,水平手勢交給 JS(JS 用方向鎖定區分,見 projects-list.ts)
+    touch-action: pan-y;
+
+    // 禁止圖片/連結觸發瀏覽器原生 HTML5 拖曳(會搶走 pointermove 事件)
+    .project-card,
+    .project-card__link,
+    .project-card__img {
+      -webkit-user-drag: none;
+      user-drag: none;
+    }
+
+    --card-width: 90vw;
+    --card-peek: 5vw;
+
+    @media (min-width: 768px) {
+      --card-width: 60vw;
+      --card-peek: 20vw;
+    }
+
+    @media (min-width: 1024px) {
+      --card-width: 50vw;
+      --card-peek: 25vw;
+    }
+
+    padding-inline: var(--card-peek);
+
+    .project-card {
+      flex: 0 0 var(--card-width);
+      min-width: 0;
+      padding-inline: var(--space-2); // 手機版較小間距
+      opacity: 0.4;
+      transition: opacity 0.4s var(--ease-out);
+
+      &.is-active {
+        opacity: 1;
+      }
+
+      @media (min-width: 768px) {
+        padding-inline: var(--space-4);
+      }
+    }
+
+    // Slider mode 下隱藏每張卡片自己的 title(由 slider-active-title 取代)
+    .project-card__title {
+      display: none;
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Mode: Grid(1/2/3 欄 RWD)
+  // --------------------------------------------------------------------------
+  .projects-list__container.mode-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    padding-inline: var(--grid-margin);
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .project-card {
+      padding-inline: 0;
+    }
+  }
+
+  // Grid mode 下隱藏 slider 專屬元件(控制列、active title)
+  :global(body:has(#projects-list.mode-grid)) .slider-active-title,
+  :global(body:has(#projects-list.mode-grid)) #slider-controls {
+    display: none;
+  }
+
+  // Slider mode 下隱藏每張卡 meta 的 desc + tags(只在 grid 顯示完整 meta)
+  // Active card 的 tags/desc 可由下方的 slider-active-meta 另外顯示(Phase 2 再做)
+  // Phase 1 先保留顯示,避免卡片太空
+  // → 決定:slider 保留 tags + desc 在每張卡,視覺更飽滿
+
+  // ==========================================================================
+  // Project Card
+  // ==========================================================================
+  .project-card {
+    display: block;
+  }
+
+  .project-card__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .project-card__cover {
+    display: block;
+    width: 100%;
+    aspect-ratio: 960 / 600;
+    overflow: hidden;
+    background-color: var(--color-surface);
+    margin-bottom: var(--space-4);
+  }
+
+  // wrap 由 GSAP 控制 translateX(視差);img 自己用 transform: scale 放大
+  // 兩者拆開避免 transform 衝突
+  .project-card__img-wrap {
+    width: 100%;
+    height: 100%;
+  }
+
+  .project-card__img,
+  .project-card__img-placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background-color: var(--color-surface);
+    transform: scale(1.2); // 圖片放大到 120%(超出由 cover overflow:hidden 裁切)
+  }
+
+  .project-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .project-card__title {
+    font-size: var(--text-h4);
+    font-weight: var(--font-weight-medium);
+    margin: 0;
+  }
+
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .project-card__tag {
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-full);
+    color: var(--color-foreground-muted);
+  }
+
+  .project-card__desc {
+    font-size: var(--text-body);
+    color: var(--color-foreground-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  // ==========================================================================
+  // Slider 控制列(prev/next + 進度條)
+  // ==========================================================================
+  .slider-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    margin-top: var(--space-8);
+    flex-wrap: wrap;
+  }
+
+  .slider-nav {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .slider-nav__btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-body);
+    color: var(--color-foreground);
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-duration) var(--transition-timing),
+      color var(--transition-duration) var(--transition-timing),
+      border-color var(--transition-duration) var(--transition-timing);
+
+    &:hover {
+      background-color: var(--color-foreground);
+      color: var(--color-background);
+      border-color: var(--color-foreground);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.04);
+        color: var(--color-foreground);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+
+  .slider-progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .slider-progress__bar {
+    flex: 1;
+    height: 1px;
+    background-color: rgba(238, 238, 238, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slider-progress__bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: calc(var(--progress, 0) * 100%);
+    background-color: var(--color-brand);
+    transition: width 0.6s var(--ease-out);
+  }
+
+  .slider-progress__count {
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    color: var(--color-foreground-muted);
+    flex-shrink: 0;
+  }
+</style>
