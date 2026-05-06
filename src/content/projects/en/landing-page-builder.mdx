@@ -1,0 +1,39 @@
+---
+title: "Landing Page Builder"
+description: "Drag-and-drop landing page generator with live preview and multi-template switching"
+lang: "en"
+slug: "landing-page-builder"
+status: "online"
+tags: ["Vue 3", "TypeScript", "Pinia", "Tailwind"]
+liveUrl: "https://example.com"
+sourceUrl: "https://github.com/example/landing-builder"
+order: 5
+date: "2024-09"
+---
+
+## Project Overview
+
+A low-barrier landing page generator that lets marketing teams assemble Hero / Features / FAQ / CTA blocks without engineering help — drag-sort, live preview, then publish to CDN with one click.
+
+## My Role
+
+Frontend lead, responsible for:
+
+- Drag-sort system (HTML5 Drag and Drop API + Vue Composition API)
+- Block data model design (schema-driven renderer)
+- Two-way communication between live-preview iframe and editor (postMessage)
+- Template marketplace and application flow
+
+## Technical Highlights
+
+### Schema-Driven Rendering
+
+Every Block is a pure JSON schema; the editor reads the schema to render form controls, while the preview side reads the same schema to render UI. Front and back are decoupled — adding a new Block type only requires writing a schema definition.
+
+### Tactile Drag Physics
+
+Used the FLIP technique (First / Last / Invert / Play) to produce smooth displacement when cards reshuffle, avoiding the instant snap of list reflow and giving users a genuine "object being moved" feel.
+
+## Lessons Learned
+
+The most interesting part wasn't writing drag — it was designing the Block schema. It needs to be flexible without being so loose that users get lost. I settled on a "finite options + tunable details" principle: types are fixed but every field can be customized.

@@ -1,0 +1,39 @@
+---
+title: "預約管理系統"
+description: "餐飲業預約系統，整合 LINE 通知與行事曆同步"
+lang: "zh"
+slug: "booking-system"
+status: "online"
+tags: ["Next.js", "Prisma", "PostgreSQL", "LINE API"]
+liveUrl: "https://example.com"
+cover: "/images/projects/project-0.jpg"
+order: 6
+date: "2024-04"
+---
+
+## 專案概述
+
+為連鎖餐飲品牌打造的線上預約系統，顧客端可選位、選時段、留言備註；店家端有日曆檢視、座位管理與顧客資料。預約成立後自動發送 LINE 通知並寫入店家 Google Calendar。
+
+## 我的角色
+
+全端開發，負責：
+
+- Next.js App Router 架構（顧客端 + 後台）
+- Prisma schema 設計（餐廳 / 座位 / 時段 / 預約）
+- LINE Messaging API 串接（webhook + push message）
+- Google Calendar OAuth 與雙向同步
+
+## 技術亮點
+
+### 時段衝突處理
+
+採用「座位 × 時間切片」二維陣列來計算可預約時段，避免在大量資料下用迴圈巢狀比對的效能問題。新增預約時用 PostgreSQL 的 `EXCLUDE` constraint 確保資料庫層也擋住衝突，雙重保險。
+
+### 通知佇列
+
+LINE 推播失敗時不能讓顧客請求卡住，所以把通知拆到 BullMQ 佇列非同步處理，失敗自動重試 3 次，仍失敗則寫入錯誤紀錄供後台手動處理。
+
+## 學到的事
+
+實際做完才理解「業務邏輯」的複雜度——光是「店家臨時休息」這條規則就要橫跨預約建立、通知文案、退款流程等十幾處。寫程式只占 30%，跟業主討論邊界 case 占了大半。

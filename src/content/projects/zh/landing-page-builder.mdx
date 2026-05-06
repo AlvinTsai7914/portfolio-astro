@@ -1,0 +1,40 @@
+---
+title: "落地頁編輯器"
+description: "拖曳式落地頁產生器，支援即時預覽與多範本切換"
+lang: "zh"
+slug: "landing-page-builder"
+status: "online"
+tags: ["Vue 3", "TypeScript", "Pinia", "Tailwind"]
+liveUrl: "https://example.com"
+sourceUrl: "https://github.com/example/landing-builder"
+cover: "/images/projects/project-0.jpg"
+order: 5
+date: "2024-09"
+---
+
+## 專案概述
+
+一套低門檻的落地頁產生工具，行銷團隊不需工程協助即可組合 Hero / 特色 / FAQ / CTA 等區塊，拖曳排序、即時預覽，最後一鍵發佈到 CDN。
+
+## 我的角色
+
+前端主導，負責：
+
+- 拖曳排序系統（HTML5 Drag and Drop API + Vue Composition API）
+- 區塊資料模型設計（schema 驅動的渲染器）
+- 即時預覽 iframe 與編輯器的雙向通訊（postMessage）
+- 範本市集與套用流程
+
+## 技術亮點
+
+### Schema 驅動渲染
+
+每個 Block 都是純 JSON schema，編輯器讀 schema 渲染表單、預覽端讀同一份 schema 渲染 UI。前後解耦，新增 Block 類型只需寫一份 schema 定義。
+
+### 拖曳的物理感
+
+使用 FLIP 技術（First / Last / Invert / Play）製造卡片重新排列時的平滑位移，避免 list reflow 的瞬間跳動，給使用者真實的「物件被搬動」感受。
+
+## 學到的事
+
+最有趣的不是寫拖曳，而是設計 Block schema——既要彈性又不能太鬆散，否則使用者會迷路。最後決定用「有限的選項 + 細節可調」原則：類型固定但每個欄位都能客製。

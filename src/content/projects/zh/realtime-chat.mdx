@@ -1,0 +1,39 @@
+---
+title: "即時聊天室"
+description: "多房間即時聊天系統，支援已讀回條與檔案分享"
+lang: "zh"
+slug: "realtime-chat"
+status: "offline"
+tags: ["React", "Socket.io", "Express", "Redis"]
+sourceUrl: "https://github.com/example/realtime-chat"
+cover: "/images/projects/project-0.jpg"
+order: 7
+date: "2023-11"
+---
+
+## 專案概述
+
+練習作品。建立一個輕量級的多房間聊天系統，支援即時訊息、已讀回條、輸入中提示、檔案分享。重點放在 WebSocket 連線管理與訊息可靠性。
+
+## 我的角色
+
+獨立完成前後端：
+
+- 前端 React + Zustand 管理即時狀態
+- 後端 Express + Socket.io 處理多房間廣播
+- Redis Pub/Sub 跨節點分發訊息
+- S3 處理檔案上傳與下載
+
+## 技術亮點
+
+### 重連與訊息可靠性
+
+WebSocket 斷線是常態。客戶端記錄最後收到的訊息 ID，重連後送 `lastSeenId` 給伺服器，伺服器補回缺失訊息。離線期間自己送出的訊息暫存於 IndexedDB，連線恢復後重發。
+
+### 已讀回條
+
+不每則訊息都送 read receipt（流量太大），改用「節流的最後已讀指標」——使用者捲動到某則訊息停留 2 秒後才送一次更新，前端顯示時用兩條線（自己已讀 / 對方已讀）視覺化。
+
+## 學到的事
+
+第一次認真做即時系統。最深的體會是「分散式資料一致性」沒有銀彈——已讀回條、訊息順序、跨裝置同步，每個都得在效能和準確之間取捨。Redis Pub/Sub 簡單但有訊息遺失風險，正式產品還是得上 Kafka 之類的持久化佇列。

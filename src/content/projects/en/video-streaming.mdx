@@ -1,0 +1,38 @@
+---
+title: "Video Streaming Platform"
+description: "Educational video streaming platform with adaptive HLS bitrate and paywall"
+lang: "en"
+slug: "video-streaming"
+status: "online"
+tags: ["Next.js", "HLS.js", "FFmpeg", "Stripe"]
+liveUrl: "https://example.com"
+order: 9
+date: "2024-08"
+---
+
+## Project Overview
+
+A video streaming platform built for an online education institution. Instructors upload raw videos and the system auto-transcodes them into multi-bitrate HLS streams; the frontend adaptively switches resolution based on user bandwidth. Built-in paywall with subscription billing.
+
+## My Role
+
+Frontend lead + partial backend:
+
+- Custom video player UI (HLS.js as core, custom-drawn controls and subtitles)
+- Stripe subscription integration (webhook handling for renewals, refunds, card failures)
+- FFmpeg transcoding worker deployment (backend colleague led; I handled frontend progress display)
+- Paywall and trial preview logic
+
+## Technical Highlights
+
+### Adaptive Bitrate
+
+HLS.js's default ABR algorithm switches too frequently on Taiwan's network conditions (its bandwidth detection is too sensitive). I rewrote it with an exponential moving average for bandwidth estimation, plus an asymmetric "switch down fast, switch up slow" strategy. Measured: 60% fewer switches with no notable quality drop.
+
+### Paywall
+
+Just checking subscription status isn't enough — HLS `.ts` segments can be directly URL-scraped and downloaded. Switched to "short-lived token + dynamic manifest" — each manifest request triggers a backend subscription check and generates a 5-minute signed token, written into segment URLs; Lambda@Edge at the CDN layer validates the signature.
+
+## Lessons Learned
+
+The most painful part was cross-browser HLS behavior differences. Safari natively supports HLS but has weak buffer control; Chrome needs HLS.js but conflicts with native video API in many subtle ways. Wrote 300 lines of quirks handling to unify behavior. Web platform "standards" often just mean "every major browser implemented it differently."

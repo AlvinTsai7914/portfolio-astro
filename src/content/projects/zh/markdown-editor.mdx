@@ -1,0 +1,39 @@
+---
+title: "協作式 Markdown 編輯器"
+description: "瀏覽器內多人協作 Markdown 編輯器，支援即時同步與版本還原"
+lang: "zh"
+slug: "markdown-editor"
+status: "offline"
+tags: ["Vue 3", "CodeMirror 6", "Yjs", "WebSocket"]
+sourceUrl: "https://github.com/example/md-editor"
+cover: "/images/projects/project-0.jpg"
+order: 8
+date: "2023-07"
+---
+
+## 專案概述
+
+學習 CRDT（Conflict-free Replicated Data Type）的練習作品。建立一個多人即時協作的 Markdown 編輯器，多個使用者同時編輯同一份文件時，所有人的修改會自動合併不會衝突。
+
+## 我的角色
+
+獨立開發，著重在：
+
+- CodeMirror 6 整合（語法高亮、行號、Markdown plugin）
+- Yjs CRDT 與 WebSocket Provider 串接
+- 游標位置與選取範圍的多人同步顯示
+- 版本歷史與還原功能
+
+## 技術亮點
+
+### CRDT 邏輯
+
+每個編輯操作都被 Yjs 編碼成不可變的 update binary，透過 WebSocket 廣播給其他連線者。每個 client 收到 update 後合併進自己的 doc，數學上保證任何順序合併的結果都一樣，所以不需要中央伺服器仲裁。
+
+### 游標同步
+
+每個使用者有獨立顏色的游標標記。本地 selection 變化透過 awareness protocol 廣播；遠端游標用 CodeMirror 的 decoration API 渲染為 inline widget，名字標籤用 CSS animation 淡入淡出避免視覺干擾。
+
+## 學到的事
+
+CRDT 是個漂亮但難理解的東西。實際做才體會到「資料結構決定協作能力」——如果一開始選 OT（Operational Transform），就會被中央伺服器綁架。Yjs 給人「離線優先 + 最終一致」的自由感，但也意味著要面對非同步合併帶來的所有怪 bug。

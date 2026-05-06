@@ -1,0 +1,39 @@
+---
+title: "影音串流平台"
+description: "教育影音串流平台，HLS 自適應碼率與付費牆"
+lang: "zh"
+slug: "video-streaming"
+status: "online"
+tags: ["Next.js", "HLS.js", "FFmpeg", "Stripe"]
+liveUrl: "https://example.com"
+cover: "/images/projects/project-0.jpg"
+order: 9
+date: "2024-08"
+---
+
+## 專案概述
+
+為線上教育機構打造的影音串流平台。講師上傳原始影片後系統自動轉碼為多碼率 HLS 串流，前端依使用者頻寬自適應切換解析度。內建付費牆與訂閱制收費。
+
+## 我的角色
+
+前端主導 + 部分後端：
+
+- 自製影片播放器 UI（HLS.js 為核心，自繪控制列與字幕）
+- Stripe 訂閱制串接（webhook 處理續訂、退款、卡號失敗）
+- FFmpeg 轉碼 worker 部署（後端同事主導，我負責前端串接進度顯示）
+- 付費牆與試看片段邏輯
+
+## 技術亮點
+
+### 自適應碼率
+
+HLS.js 預設的 ABR 演算法在台灣網路環境會切太頻繁（網路波動偵測太敏感）。改寫了一版加上指數移動平均的頻寬估算，加上「往下切快、往上切慢」的不對稱策略，實測切換次數降低 60% 而畫質不顯著下降。
+
+### 付費牆
+
+不是單純檢查訂閱狀態就能放影片，因為 HLS 的 `.ts` 切片可以被直接抓 URL 偷下載。改用「短時 token + 動態 manifest」，每次請求 manifest 時後端驗證訂閱並產生 5 分鐘有效的簽章 token，token 寫入 segment URL，CDN 上層用 Lambda@Edge 驗章。
+
+## 學到的事
+
+最痛苦的是 cross-browser HLS 行為差異。Safari 原生支援 HLS 但 buffer 控制弱、Chrome 要 HLS.js 但跟原生 video API 有許多細節衝突。寫了三百行 quirks 處理才把行為統一。Web 平台的「標準」常常只是「主要瀏覽器都做了不同實作」的代名詞。
