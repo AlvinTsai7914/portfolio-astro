@@ -489,6 +489,22 @@ function initProjectsList() {
     { signal },
   );
 
+  // 進度條點擊跳轉:點擊位置 / bar 寬度 → round 到最接近的 snap index
+  const progressBar = document.querySelector<HTMLElement>(".slider-progress__bar");
+  progressBar?.addEventListener(
+    "click",
+    (e) => {
+      if (!emblaApi) return;
+      if (container.dataset.view !== "slider") return;
+      const rect = progressBar.getBoundingClientRect();
+      const ratio = (e.clientX - rect.left) / rect.width;
+      const total = emblaApi.scrollSnapList().length;
+      const idx = Math.max(0, Math.min(total - 1, Math.round(ratio * (total - 1))));
+      emblaApi.scrollTo(idx);
+    },
+    { signal },
+  );
+
   // Click guard:拖曳後不觸發 <a> 跳轉(Embla 判斷是否為拖曳)
   document.querySelectorAll<HTMLAnchorElement>(".project-card__link").forEach((link) => {
     link.addEventListener(

@@ -223,7 +223,7 @@ const total = String(projects.length).padStart(2, "0");
   }
 
   .slider-progress { display: flex; align-items: center; gap: var(--space-4); flex: 1; min-width: 200px; }
-  .slider-progress__bar { flex: 1; height: 1px; background-color: rgba(238, 238, 238, 0.1); position: relative; overflow: hidden; }
+  .slider-progress__bar { flex: 1; height: 1px; background-color: rgba(238, 238, 238, 0.1); position: relative; overflow: hidden; cursor: pointer; }
   .slider-progress__bar-fill { position: absolute; top: 0; left: 0; height: 100%; width: calc(var(--progress, 0) * 100%); background-color: var(--color-brand); transition: width 0.6s var(--ease-out); }
   .slider-progress__count { font-family: var(--font-mono); font-size: var(--text-body-sm); color: var(--color-foreground-muted); flex-shrink: 0; }
 </style>
