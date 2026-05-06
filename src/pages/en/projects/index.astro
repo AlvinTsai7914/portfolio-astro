@@ -27,8 +27,21 @@ const total = String(projects.length).padStart(2, "0");
           <p class="projects-list__desc">Each project a complete journey from concept to launch.</p>
 
           <div class="view-toggle" role="radiogroup" aria-label="Toggle view mode">
-            <button type="button" class="view-toggle__btn" data-mode="slider" aria-pressed="true">Slider</button>
-            <button type="button" class="view-toggle__btn" data-mode="grid" aria-pressed="false">Grid</button>
+            <button type="button" class="view-toggle__btn" data-mode="slider" aria-pressed="true" aria-label="Slider view">
+              <svg class="view-toggle__icon" viewBox="0 0 24 16" aria-hidden="true">
+                <rect x="2" y="3" width="5" height="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="9.5" y="3" width="5" height="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="17" y="3" width="5" height="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </button>
+            <button type="button" class="view-toggle__btn" data-mode="grid" aria-pressed="false" aria-label="Grid view">
+              <svg class="view-toggle__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="14" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="3" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="14" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </button>
           </div>
 
           <h2 class="slider-active-title" id="slider-active-title">{projects[0].data.title}</h2>
@@ -102,20 +115,23 @@ const total = String(projects.length).padStart(2, "0");
   .projects-list__headline { font-size: var(--text-h1); margin: 0; }
   .projects-list__desc { font-size: var(--text-body-lg); color: var(--color-foreground-muted); margin-bottom: var(--space-8); }
 
-  .view-toggle { display: inline-flex; border: 1px solid var(--color-border-muted); border-radius: var(--radius-full); padding: var(--space-1); margin-bottom: var(--space-6); }
+  // 32×32 square icon button,獨立邊框,active 反白
+  .view-toggle { display: inline-flex; gap: var(--space-2); margin-bottom: var(--space-6); }
   .view-toggle__btn {
-    padding: var(--space-2) var(--space-5);
-    font-family: var(--font-mono);
-    font-size: var(--text-body-sm);
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0;
     color: var(--color-foreground-muted);
     background: transparent;
-    border: none;
-    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-muted);
+    border-radius: 0;
     cursor: pointer;
-    transition: color var(--transition-duration), background-color var(--transition-duration);
+    transition: color var(--transition-duration), background-color var(--transition-duration), border-color var(--transition-duration);
 
-    &[aria-pressed="true"] { background-color: var(--color-foreground); color: var(--color-background); }
+    &:hover { color: var(--color-foreground); border-color: var(--color-foreground); }
+    &[aria-pressed="true"] { background-color: var(--color-foreground); color: var(--color-background); border-color: var(--color-foreground); }
   }
+  .view-toggle__icon { width: 18px; height: 18px; display: block; }
 
   .slider-active-title { font-size: var(--text-h2); font-weight: var(--font-weight-regular); letter-spacing: -0.03em; margin: 0; min-height: 1em; }
 

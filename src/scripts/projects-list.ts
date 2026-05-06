@@ -6,24 +6,34 @@
 //   1. Mode toggle:Slider ↔ Grid + localStorage 記住
 //   2. Hero title 跟隨 active 卡片(scrambleTo 動畫)
 //   3. 進度條 fill + 計數
-//   4. 位置式視差:每張卡片的圖 x 依距 viewport 中心距離 × -120px
-//   5. 前後卡片 opacity 0.4 虛化
-//   6. Click guard:拖曳後不觸發連結跳轉(Embla 的 clickAllowed API)
-//
-// 尚未實作(Phase 4):
-//   - Slider ↔ Grid 切換用 View Transitions + GSAP FLIP 降級
+//   4. Slider 視差:水平方向,每張卡片的圖 x 依距 viewport 中心距離 × -120px
+//   5. Grid 視差:垂直方向,每張卡片用 ScrollTrigger scrub,圖 y ±30px
+//   6. 前後卡片 opacity 0.4 虛化
+//   7. Click guard:拖曳後不觸發連結跳轉(Embla 的 clickAllowed API)
+//   8. Slider ↔ Grid 切換動畫:GSAP FLIP plugin(單軌,跨瀏覽器一致)
 // ==========================================================================
 
 import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
+import { gsap } from "gsap";
+import { Flip } from "gsap/Flip";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scrambleTo } from "./text-scramble";
+import { prefersReducedMotion } from "../utils/device";
+
+gsap.registerPlugin(Flip, ScrollTrigger);
 
 const STORAGE_KEY = "portfolio-projects-view";
-const PARALLAX_OFFSET = 120; // 每遠離中心一張卡片,圖 x 位移(px)
+const PARALLAX_OFFSET = 120; // Slider:每遠離中心一張卡片,圖 x 位移(px)
+// Grid:垂直視差幅度(±px)。受限於圖片 scale(1.2) 提供的 10% 安全裕度,
+// cover 最小高度 ~300px → 最大安全 ±30px。再多會看到底圖邊緣。
+const GRID_PARALLAX_OFFSET = 35;
 
 type Mode = "slider" | "grid";
 
 let abortController: AbortController | null = null;
 let emblaApi: EmblaCarouselType | null = null;
+let isTransitioning = false; // 防止動畫期間重複點擊
+let gridParallaxTriggers: ScrollTrigger[] = []; // Grid mode 每張卡片一個 trigger
 
 // --------------------------------------------------------------------------
 // Mode 切換
@@ -31,6 +41,10 @@ let emblaApi: EmblaCarouselType | null = null;
 function applyMode(mode: Mode) {
   const container = document.getElementById("projects-list");
   if (!container) return;
+
+  // 切離 grid 時先清掉 grid parallax 的 ScrollTrigger,避免殘留 trigger 對著
+  // 即將被 Embla 接管的 img-wrap 持續寫入 translateY。
+  disableGridParallax();
 
   container.classList.remove("mode-slider", "mode-grid");
   container.classList.add(`mode-${mode}`);
@@ -53,6 +67,9 @@ function applyMode(mode: Mode) {
       el.style.transform = "";
     });
     container.style.transform = "";
+    // 注意:不在這裡呼叫 enableGridParallax(),由 caller(initProjectsList 或
+    // animateModeSwitch 的 FLIP onComplete)決定時機。FLIP 動畫期間建立 trigger
+    // 會讓 ScrollTrigger 讀到變動中的卡片 bbox,進度算錯造成跳動。
   } else {
     initEmbla();
   }
@@ -61,6 +78,153 @@ function applyMode(mode: Mode) {
     localStorage.setItem(STORAGE_KEY, mode);
   } catch {
     /* ignore */
+  }
+}
+
+// --------------------------------------------------------------------------
+// Grid mode 垂直視差(ScrollTrigger scrub,每張卡片獨立 trigger)
+//
+// 每張卡片從進入視窗(top hits viewport bottom)到離開視窗(bottom hits viewport top)
+// 期間,img-wrap 的 y 從 +OFFSET 補間到 -OFFSET。圖片 scale(1.2) 提供 10% 安全
+// 裕度避免露邊。
+// --------------------------------------------------------------------------
+function enableGridParallax() {
+  disableGridParallax();
+  if (prefersReducedMotion()) return;
+
+  document.querySelectorAll<HTMLElement>(".project-card").forEach((card) => {
+    const imgWrap = card.querySelector<HTMLElement>(".project-card__img-wrap");
+    if (!imgWrap) return;
+
+    const tween = gsap.fromTo(
+      imgWrap,
+      { y: GRID_PARALLAX_OFFSET },
+      {
+        y: -GRID_PARALLAX_OFFSET,
+        ease: "none",
+        scrollTrigger: {
+          trigger: card,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+      },
+    );
+
+    const st = tween.scrollTrigger;
+    if (st) gridParallaxTriggers.push(st);
+  });
+}
+
+function disableGridParallax() {
+  gridParallaxTriggers.forEach((st) => st.kill());
+  gridParallaxTriggers = [];
+}
+
+// --------------------------------------------------------------------------
+// Mode 切換動畫 — GSAP FLIP
+//
+// 單軌 FLIP 策略(跨瀏覽器一致,避免 View Transitions 與 ClientRouter 互踩):
+//   Slider → Grid:
+//     1. 淡出 hero title + slider controls(0.2s)
+//     2. 抓取卡片 First 位置 → applyMode('grid') → CSS :has() 隱藏 slider UI
+//     3. Flip.from 動畫卡片飛到 Grid 格子位置
+//   Grid → Slider:
+//     1. 抓取卡片 First 位置 → applyMode('slider') → CSS 還原 slider UI
+//     2. 清除 Embla 剛設的 img-wrap parallax,避免 FLIP 期間子元素跳動
+//     3. Flip.from 動畫卡片飛回 Slider track 位置
+//     4. 淡入 hero title + controls(delay 0.3s 跟著飛位漸入)
+//     5. 完成後 emblaApi.reInit() 重新套用 parallax
+//
+// reduced-motion 直接走 applyMode(無動畫)。
+// --------------------------------------------------------------------------
+function animateModeSwitch(toMode: Mode) {
+  if (isTransitioning) return;
+  const container = document.getElementById("projects-list");
+  if (!container) return;
+  if (container.dataset.view === toMode) return;
+
+  if (prefersReducedMotion()) {
+    applyMode(toMode);
+    return;
+  }
+
+  const heroTitle = document.getElementById("slider-active-title");
+  const controls = document.getElementById("slider-controls");
+  const wrap = document.getElementById("projects-list-wrap");
+  if (!wrap) {
+    applyMode(toMode);
+    return;
+  }
+
+  isTransitioning = true;
+  const fadeTargets = [heroTitle, controls].filter(
+    (el): el is HTMLElement => el !== null,
+  );
+
+  const playFlip = (state: ReturnType<typeof Flip.getState>) => {
+    Flip.from(state, {
+      duration: 0.7,
+      ease: "power3.inOut",
+      stagger: 0.03,
+      props: "opacity",
+      // scale: true → FLIP 用 transform: scale() 處理尺寸差(預設 width/height 動畫)。
+      // 卡片寬度由父層 flex(50vw)/ grid(1fr) 決定,inline width 蓋不過去,
+      // 改走 scale 才能讓尺寸跟位置一起平滑變化(GPU composited,不會 reflow)。
+      scale: true,
+      onComplete: () => {
+        if (toMode === "slider") {
+          // Grid → Slider:讓 Embla 重新計算位移與水平 parallax
+          emblaApi?.reInit();
+        } else {
+          // Slider → Grid:卡片就定位後再啟用垂直 ScrollTrigger,
+          // 避免 trigger 在 FLIP 過程中讀到變動中的 bbox。
+          enableGridParallax();
+        }
+        isTransitioning = false;
+      },
+    });
+  };
+
+  // 注意:不要在動畫期間把 wrap 的 overflow 改成 visible。
+  // mode-slider 時 container 寬度 ~250vw(50vw 卡 × 4 + 25vw peek × 2),
+  // 一放開就會觸發 body 水平捲軸,導致 fixed header 的 viewport 高度改變看起來在跳。
+  // 卡片被 wrap 邊緣裁切而從旁邊「滑入」反而是更乾淨的進場效果。
+
+  if (toMode === "grid") {
+    // Slider → Grid:先淡出 slider UI 再 swap + FLIP
+    gsap
+      .timeline()
+      .to(fadeTargets, { opacity: 0, duration: 0.2, ease: "power2.out" })
+      .add(() => {
+        const state = Flip.getState(".project-card", { props: "opacity" });
+        applyMode(toMode); // CSS :has() 透過 mode-grid 隱藏 slider UI
+        // 清除 inline opacity,留乾淨狀態給下次 Grid → Slider 重來
+        fadeTargets.forEach((el) => {
+          el.style.opacity = "";
+        });
+        playFlip(state);
+      });
+  } else {
+    // Grid → Slider:swap + FLIP,期間清除 parallax,完成後 reInit
+    const state = Flip.getState(".project-card", { props: "opacity" });
+    applyMode(toMode); // CSS 還原 slider UI 的 display
+    // 清除 Embla 剛在 init 中設好的 img-wrap parallax 位移
+    // → 讓 img-wrap 跟著父卡片 FLIP 平滑移動,不要在飛行途中又被 parallax 偏移
+    document
+      .querySelectorAll<HTMLElement>(".project-card__img-wrap")
+      .forEach((el) => {
+        el.style.transform = "";
+      });
+    // hero title + controls 從 0 淡入(delay 跟著飛位後段)
+    gsap.set(fadeTargets, { opacity: 0 });
+    gsap.to(fadeTargets, {
+      opacity: 1,
+      duration: 0.4,
+      delay: 0.3,
+      ease: "power2.out",
+    });
+    playFlip(state);
   }
 }
 
@@ -266,6 +430,7 @@ function initProjectsList() {
   const { signal } = abortController;
   emblaApi?.destroy();
   emblaApi = null;
+  isTransitioning = false;
 
   const container = document.getElementById("projects-list");
   if (!container) return;
@@ -284,14 +449,16 @@ function initProjectsList() {
     /* ignore */
   }
   applyMode(initial);
+  // 初始即為 grid 時,直接啟用垂直視差(沒有 FLIP 動畫要等)
+  if (initial === "grid") enableGridParallax();
 
-  // Mode toggle 按鈕
+  // Mode toggle 按鈕(走帶動畫的 animateModeSwitch,首次載入用 applyMode 不動畫)
   document.querySelectorAll<HTMLButtonElement>(".view-toggle__btn").forEach((btn) => {
     btn.addEventListener(
       "click",
       () => {
         const mode = btn.dataset.mode as Mode | undefined;
-        if (mode) applyMode(mode);
+        if (mode) animateModeSwitch(mode);
       },
       { signal },
     );

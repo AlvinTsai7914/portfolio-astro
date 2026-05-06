@@ -30,10 +30,23 @@ const total = String(projects.length).padStart(2, "0");
           </RevealText>
           <p class="projects-list__desc">由概念到上線的完整實踐。</p>
 
-          <!-- View Mode Toggle -->
+          <!-- View Mode Toggle(32x32 icon button,獨立邊框,active 反白) -->
           <div class="view-toggle" role="radiogroup" aria-label="切換檢視模式">
-            <button type="button" class="view-toggle__btn" data-mode="slider" aria-pressed="true">Slider</button>
-            <button type="button" class="view-toggle__btn" data-mode="grid" aria-pressed="false">Grid</button>
+            <button type="button" class="view-toggle__btn" data-mode="slider" aria-pressed="true" aria-label="Slider 檢視">
+              <svg class="view-toggle__icon" viewBox="0 0 24 16" aria-hidden="true">
+                <rect x="2" y="3" width="5" height="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="9.5" y="3" width="5" height="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="17" y="3" width="5" height="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </button>
+            <button type="button" class="view-toggle__btn" data-mode="grid" aria-pressed="false" aria-label="Grid 檢視">
+              <svg class="view-toggle__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="14" y="3" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="3" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <rect x="14" y="14" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </button>
           </div>
 
           <!-- Slider 專用:active 卡片大標題 -->
@@ -127,34 +140,47 @@ const total = String(projects.length).padStart(2, "0");
   }
 
   // --------------------------------------------------------------------------
-  // View Mode Toggle
+  // View Mode Toggle — 32×32 正方形 icon button,獨立邊框,active 整顆反白
   // --------------------------------------------------------------------------
   .view-toggle {
     display: inline-flex;
-    gap: 0;
-    border: 1px solid var(--color-border-muted);
-    border-radius: var(--radius-full);
-    padding: var(--space-1);
+    gap: var(--space-2);
     margin-bottom: var(--space-6);
   }
 
   .view-toggle__btn {
-    padding: var(--space-2) var(--space-5);
-    font-family: var(--font-mono);
-    font-size: var(--text-body-sm);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
     color: var(--color-foreground-muted);
     background: transparent;
-    border: none;
-    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-muted);
+    border-radius: 0;
     cursor: pointer;
     transition:
       color var(--transition-duration) var(--transition-timing),
-      background-color var(--transition-duration) var(--transition-timing);
+      background-color var(--transition-duration) var(--transition-timing),
+      border-color var(--transition-duration) var(--transition-timing);
+
+    &:hover {
+      color: var(--color-foreground);
+      border-color: var(--color-foreground);
+    }
 
     &[aria-pressed="true"] {
       background-color: var(--color-foreground);
       color: var(--color-background);
+      border-color: var(--color-foreground);
     }
+  }
+
+  .view-toggle__icon {
+    width: 18px;
+    height: 18px;
+    display: block;
   }
 
   // --------------------------------------------------------------------------
