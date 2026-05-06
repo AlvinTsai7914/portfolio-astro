@@ -26,9 +26,13 @@ const description = {
 const viewAll = { zh: "所有作品", en: "All Projects" };
 
 // 從對應語言的 Collection 讀取專案
+// featured: true 才上首頁;slice(0, 4) 是上限保險(避免不小心標超過 4 個)
+// 想換首頁顯示哪 4 個 → 改各 mdx frontmatter 的 featured 欄位(中英都要改)
 const collectionName = `projects-${lang}` as "projects-zh" | "projects-en";
 const projects = (await getCollection(collectionName))
-  .sort((a, b) => a.data.order - b.data.order);
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 4);
 ---
 
 <section data-theme="dark" class="section projects-section" id="projects">

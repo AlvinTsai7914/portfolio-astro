@@ -19,6 +19,8 @@ const projectSchema = z.object({
   liveUrl: z.string().url().optional(),
   sourceUrl: z.string().url().optional(),
   order: z.number().default(0),
+  // 首頁 Projects section 是否上架(true 才會被 src/components/sections/Projects.astro 撈到)
+  featured: z.boolean().default(false),
   date: z.string(),
 });
 
