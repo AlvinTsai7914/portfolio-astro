@@ -1,6 +1,6 @@
 # 動畫規劃
 
-**最後更新**:2026-04-27
+**最後更新**:2026-05-06
 
 ---
 
@@ -220,16 +220,20 @@ scrambleTo(el, "新文字", { duration: 0.4, hold: 0 });
 
 ---
 
-## 12. Projects 列表頁 Slider + 視差
+## 12. Projects 列表頁 Slider/Grid + 視差
 
-**狀態**:✅ Phase 1~3 完成 / ⏳ Phase 4 (View Transitions) 未做
+**狀態**:✅ 已完成
 
 詳細文件:`docs/projects-list-page.md`
 
 關鍵動畫:
 - **Embla Carousel**(~10KB)處理 slide 切換動畫(`duration: 30` ≈ 0.3s 感)、拖曳慣性、邊界回彈
-- **位置式視差**:每張卡片內圖根據 Embla `scrollProgress` 計算 translateX,範圍 ±0~240px(PARALLAX_OFFSET = 120,最遠 2 卡 × 120)
+- **Slider 水平視差**:每張卡片內圖根據 Embla `scrollProgress` 計算 translateX,範圍 ±0~240px(PARALLAX_OFFSET = 120,最遠 2 卡 × 120)
+- **Grid 垂直視差**:每張卡片獨立 ScrollTrigger scrub,img-wrap translateY 從 +35 → -35px(受限於 scale(1.2) 安全裕度)
 - **Hero title scramble**:slider 切換到 active 卡時,`scrambleTo(hero, title, { duration: 0.4 })`
 - **active opacity 切換**:卡片 0.4 → 1,CSS transition 0.4s
 - **進度條 fill**:width 0 → 100%,transition 0.6s
-- **Mode 切換(Phase 4 未做)**:Slider ↔ Grid 將用 `document.startViewTransition()` + `view-transition-name` 做卡片飛位
+- **Mode 切換(Slider ↔ Grid)**:**GSAP FLIP plugin**(單軌跨瀏覽器一致),0.7s `power3.inOut` + scale + opacity stagger
+  - Slider→Grid:淡出 hero title/controls(0.2s)→ swap UI → FLIP 飛到格子位置 → onComplete 啟用 grid 視差
+  - Grid→Slider:swap UI → 清 img-wrap parallax → FLIP 飛回 → 完成後 `emblaApi.reInit()`
+  - **放棄 View Transitions API 主線**:`view-transition-name` 會浮在 SPA `<ClientRouter />` page-transition 遮罩之上(見 `docs/dev-pitfalls.md` #5)
