@@ -175,11 +175,38 @@ scrambleTo(el, "新文字", { duration: 0.4, hold: 0 });
 
 ## 8. 頁面轉場
 
-**狀態**：⏳ 待進行
+**狀態**:✅ 已完成
 
-- Astro View Transitions（`<ClientRouter />`）
-- 頁面間的過渡動畫
-- 所有動畫腳本已預埋 `astro:page-load` / AbortController 清理機制
+**元件**:`<ClientRouter />`(`src/components/layout/BaseLayout.astro:48`)
+**腳本**:`src/scripts/page-transition.ts`(雙色遮罩掃描動畫)
+
+### 實作概要
+
+- 用 **Web Animations API**(非 GSAP),讓 transform 在合成器線程跑,不被 WebGL `texSubImage2D` 等主線程作業阻塞
+- **離開動畫**(cover):攔截 `astro:before-preparation` 的 loader,先跑橘色遮罩 scaleY 從上→下展開,黑色遮罩延遲 100ms 跟進
+- **到達動畫**(reveal):監聽 `astro:after-swap`,黑色先退、橘色後退(最後蓋的最先走)
+- **ASCII 同步**:有 `hero-ascii-ready` 事件才 reveal,timeout 1500ms(有 ASCII)/ 300ms(無 ASCII),避免揭示到還沒貼圖的 Three.js scene
+- **滾動處理**:`astro:after-swap` 內,有 hash 滾到對應錨點,沒有則滾到頂部
+- **跨頁保留元素**(`data-astro-transition-persist`):
+  - `#custom-cursor`(避免每次切頁重置)
+  - `#page-transition` 雙色遮罩本身(不被 DOM swap 替換)
+- **首次載入也跑 reveal**:`handleInitialLoad()` 等 ASCII ready 後揭示
+
+### 時間常數
+
+| 常數 | 值 | 說明 |
+|------|-----|------|
+| `COVER_DURATION` | 500ms | 覆蓋動畫時長 |
+| `REVEAL_DURATION` | 500ms | 揭示動畫時長 |
+| `STAGGER` | 100ms | 兩層遮罩間隔 |
+| `EASING` | `cubic-bezier(0.65, 0, 0.35, 1)` | ≈ power3.inOut |
+| `ASCII_TIMEOUT` | 1500ms | 有 ASCII 頁面的最大等待時間 |
+| `NO_ASCII_TIMEOUT` | 300ms | 無 ASCII 頁面的等待時間 |
+
+### 注意事項
+
+- 不要把 `view-transition-name` 寫死在 HTML 上,會浮在 page-transition 遮罩之上(見 `docs/dev-pitfalls.md` #5)
+- 所有動畫腳本透過 `astro:page-load` event + AbortController 清理機制重綁,SPA 切頁不會累加 listener
 
 ---
 
