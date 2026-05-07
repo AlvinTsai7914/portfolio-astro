@@ -20,30 +20,39 @@ const headline = { zh: "工作經歷", en: "Work Experience" };
 
 const experiences = [
   {
-    period: "2023 — Present",
+    period: "2021.11 — Present",
     title: { zh: "前端工程師", en: "Frontend Developer" },
-    company: "Company A",
+    company: { zh: "凱斯整合行銷", en: "Cas Integrated Marketing" },
     description: {
-      zh: "使用 React 和 TypeScript 開發並維護響應式網頁應用程式，負責元件架構設計與效能最佳化。",
-      en: "Building and maintaining responsive web applications with React and TypeScript. Responsible for component architecture and performance optimization.",
+      zh: "服務政府、日商汽車、金融、新創餐飲等客戶，專案類型涵蓋無障礙形象網站、互動動畫網頁、企業後台系統。",
+      en: "Delivering websites for government, Japanese automotive, finance, and F&B clients. Projects span accessibility-compliant sites, interactive motion pages, and admin systems.",
     },
   },
   {
-    period: "2021 — 2023",
-    title: { zh: "初階前端工程師", en: "Junior Frontend Developer" },
-    company: "Company B",
+    period: "2021.05 — 2021.11",
+    title: { zh: "接案前端", en: "Freelance Frontend" },
+    company: { zh: "獨立接案", en: "Self-employed" },
     description: {
-      zh: "開發 UI 元件並實作響應式佈局，使用 SCSS 和 Bootstrap 建構模組化樣式系統。",
-      en: "Developed UI components and implemented responsive layouts using SCSS and Bootstrap.",
+      zh: "7 個月外包接案，獨立完成多個客戶網站切版與維護，以及一個新創餐飲平台前端開發。",
+      en: "7 months of independent client work — delivering markup, maintenance, and a F&B platform frontend.",
     },
   },
   {
-    period: "2020 — 2021",
-    title: { zh: "網頁設計實習生", en: "Web Design Intern" },
-    company: "Company C",
+    period: "2020.06 — 2021.03",
+    title: { zh: "學生", en: "Student" },
+    company: { zh: "Lidemy 程式導師實驗計畫", en: "Lidemy Mentor Program" },
     description: {
-      zh: "協助網站改版專案，製作設計稿並實作 HTML/CSS 前端頁面。",
-      en: "Assisted in website redesign projects, creating mockups and implementing HTML/CSS.",
+      zh: "為期 10 個月的系統化前端訓練，從 HTML/CSS、JS 基礎到 React/Redux/Webpack 等現代框架與工具。",
+      en: "10-month structured frontend program covering HTML/CSS through React, Redux, and modern build tools.",
+    },
+  },
+  {
+    period: "2016.11 — 2020.02",
+    title: { zh: "國外業務", en: "International Sales" },
+    company: { zh: "紅崴科技（中國廈門）", en: "Hong Wei Tech (Xiamen, China)" },
+    description: {
+      zh: "3 年中國市場業務經驗，負責代理商招商與課程演講，培養跨領域溝通與專案協調能力。",
+      en: "Three years of international sales in mainland China — agency development and training delivery, building cross-functional communication skills.",
     },
   },
 ];
@@ -62,7 +71,7 @@ const experiences = [
               <span class="experience__period">{exp.period}</span>
               <div class="experience__role">
                 <h4 class="experience__title">{exp.title[lang]}</h4>
-                <span class="experience__company">{exp.company}</span>
+                <span class="experience__company">{exp.company[lang]}</span>
               </div>
               <p class="experience__desc">{exp.description[lang]}</p>
             </article>
