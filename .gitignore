@@ -28,3 +28,7 @@ pnpm-debug.log*
 
 # Claude Code local settings
 .claude/
+
+# 個人履歷與抽出的純文字(含敏感個資,不上 repo)
+docs/蔡承初.pdf
+docs/resume.txt
