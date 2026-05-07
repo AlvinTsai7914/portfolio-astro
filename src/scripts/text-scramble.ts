@@ -304,7 +304,7 @@ function initTextScramble() {
 
 // --------------------------------------------------------------------------
 // 程式化觸發:將 el 的文字以亂碼動畫切換成 targetText
-// 用於動態切換的場合(如 mobile menu 開合時 logo 文字「YourName ⇄ Hello World」)
+// 用於動態切換的場合(如 mobile menu 開合時 logo 文字「Alvin Tsai ⇄ Hello World」)
 // --------------------------------------------------------------------------
 export function scrambleTo(
   el: HTMLElement,

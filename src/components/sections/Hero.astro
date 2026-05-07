@@ -18,11 +18,13 @@ const { lang = "zh" } = Astro.props;
 
 const content = {
   zh: {
+    name: "蔡承初",
     tagline: "打造高效能、無障礙且美觀的網頁體驗",
     ctaProjects: "查看作品",
     ctaContact: "聯繫我",
   },
   en: {
+    name: "Alvin Tsai",
     tagline: "Building high-performance, accessible, and beautiful web experiences.",
     ctaProjects: "View Projects",
     ctaContact: "Contact Me",
@@ -43,7 +45,7 @@ const t = content[lang];
         <RevealText delay={1} immediate><span class="hero__title">Frontend</span></RevealText>
         <RevealText delay={1.2} mt="-24px" immediate><span class="hero__title" role="doc-subtitle">Developer</span></RevealText>
       </h1>
-      <p class="hero__name" data-fade-up data-fade-group="hero-entrance" data-fade-immediate data-fade-delay="1.5">YourName</p>
+      <p class="hero__name" data-fade-up data-fade-group="hero-entrance" data-fade-immediate data-fade-delay="1.5">{t.name}</p>
       <p class="hero__tagline" data-fade-up data-fade-group="hero-entrance" data-fade-immediate data-fade-delay="1">{t.tagline}</p>
       <div class="hero__cta" data-fade-up data-fade-group="hero-entrance" data-fade-immediate data-fade-delay="1">
         <a href="#contact" class="hero__btn hero__btn--primary">

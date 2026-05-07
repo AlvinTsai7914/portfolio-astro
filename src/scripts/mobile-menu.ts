@@ -3,7 +3,7 @@
 //
 // 職責:
 //   1. MENU 按鈕 toggle 開合 mobile-menu overlay
-//   2. 開合時 logo 文字切換(YourName ⇄ Hello World),用 text-scramble 程式化觸發
+//   2. 開合時 logo 文字切換(Alvin Tsai ⇄ Hello World),用 text-scramble 程式化觸發
 //   3. IntersectionObserver 偵測當前 section,更新選單中 .is-active 項目
 //   4. body scroll lock(開啟時禁止捲動)
 //   5. ESC 關閉、nav 點擊先關再平滑滾動
@@ -16,7 +16,7 @@
 
 import { scrambleTo } from "./text-scramble";
 
-const LOGO_DEFAULT = "YourName";
+const LOGO_DEFAULT = "Alvin Tsai";
 const LOGO_OPEN = "Hello World";
 const SECTION_ACTIVE_MARGIN = "-40% 0px -40% 0px";
 
