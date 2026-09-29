@@ -258,4 +258,70 @@ Production build 不會有此元素。
 
 ---
 
-**最後更新**:2026-04-27
+## 9. GSAP `yPercent` 疊加 CSS fallback transform 造成視差露白
+
+**日期**:2026-09-29
+
+**問題**:
+Projects 視差重構後,專案卡片從視窗底進場時圖片下緣露白最大約 21px(可見縫隙),
+且會隨滾動移動。build 通過、靜態檢視正常,只有滾動中出現。
+
+**原因**:
+`.projects__item-image` 的 CSS 有 no-JS/手機 fallback `transform: translateY(-12.5%)`。
+GSAP 初始化 `gsap.fromTo(el, { yPercent: -22.5 }, ...)` 時,會把既有 computed transform
+解析成**像素值**存進內部 `y`(688px 高的層 → -86px),然後把自己的 `yPercent` **疊加**
+上去。實測 inline style 變成:
+
+```
+transform: translate(0%, -22.5%) translate(0px, -86px);
+```
+
+總位移超出 4/3 vs 16/9 的 172px 餘裕 68.8px → 露白。
+
+**修法**(`Projects.astro`):fromTo 起始值補 `y: 0`,讓 GSAP 接管時歸零像素偏移;
+CSS fallback 保留給手機(<768 不啟用 GSAP)與無 JS 情境:
+
+```ts
+gsap.fromTo(parallaxLayer, { y: 0, yPercent: -22.5 }, { yPercent: -2.5, ... });
+```
+
+**教訓**:CSS 預設 transform + GSAP 接管同一元素時,GSAP 的 percent 屬性與解析出的
+像素偏移是**兩個獨立軌道會相加**。接管時務必顯式歸零不要的軌道。驗證這類問題要用
+Playwright 在多個滾動位置量 bounding box(gap = wrapper.bottom - layer.bottom),
+肉眼在深色主題下看不出來。
+
+**影響檔案**:
+- `src/components/sections/Projects.astro`
+
+---
+
+## 10. Lenis 攔截 `window.scrollTo`,程式化滾動變漸進動畫
+
+**日期**:2026-09-29
+
+**問題**:
+Playwright 驗證腳本 `window.scrollTo(0, y)` 後等 500ms 截圖,實測滾動位置離目標
+還差 300px——所有依「滾到指定位置」的量測與截圖全部失準。
+
+**原因**:
+Lenis(平滑捲動)會攔截程式化捲動,把瞬時 scrollTo 轉成 ~1.2s 的漸進動畫。
+等待 500ms 時動畫還沒收斂。
+
+**修法**(驗證腳本):用「滾動 → 等 1.2s+ → 量誤差 → 再滾」的校正迴圈,
+誤差 < 2px 才截圖:
+
+```js
+for (let i = 0; i < 5; i++) {
+  const delta = await page.evaluate(() => { /* 量目標差值並 scrollTo */ });
+  await page.waitForTimeout(1200);
+  if (Math.abs(delta) < 2) break;
+}
+```
+
+**教訓**:專案有 Lenis 的頁面,任何 E2E/截圖腳本都不能假設 scrollTo 是同步的。
+
+**影響檔案**:無(僅測試 script;產線腳本在 `.preview/`)
+
+---
+
+**最後更新**:2026-09-29
