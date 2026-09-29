@@ -55,7 +55,7 @@ const { Content } = await render(project);
     <div class="case-study__cover" data-theme="light">
       <div class="grid">
         <div class="grid-full">
-          <div class="case-study__cover-image"></div>
+          <img class="case-study__cover-image" src={project.data.cover} alt={project.data.title} />
         </div>
       </div>
     </div>
@@ -164,8 +164,10 @@ const { Content } = await render(project);
   }
 
   .case-study__cover-image {
+    display: block;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 4 / 3; // 封面統一 1920×1440,原比例完整呈現
+    object-fit: cover;
     background-color: var(--color-surface);
     border-radius: var(--radius-12);
   }
