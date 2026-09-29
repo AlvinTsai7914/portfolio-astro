@@ -137,7 +137,6 @@ const projects = (await getCollection(collectionName))
   // 按鈕尺寸由全域 --btn-size / --btn-gap 控制（mobile 32px / tablet+ 40px）
   $thumb-nav-width: 128px;
   $indicator-size: 12px;
-  $parallax-offset: 120px;
   $item-gap: var(--space-16);
   $btn-transition: transform 0.7s cubic-bezier(0.83, 0, 0.17, 1);
 
@@ -211,7 +210,7 @@ const projects = (await getCollection(collectionName))
 
   .projects__nav-thumb {
     width: $thumb-nav-width;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 9;
     border-radius: var(--radius-4);
     overflow: hidden;
     background-color: var(--color-surface);
@@ -333,20 +332,23 @@ const projects = (await getCollection(collectionName))
   // 外框：固定尺寸、圓角、裁切溢出
   .projects__item-image-wrapper {
     width: 100%;
-    aspect-ratio: 960 / 600;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     margin-bottom: var(--space-4);
   }
 
-  // 內層圖片容器：hover 放大，比外框高以容納視差
+  // 視差層：aspect-ratio 4/3 比 16/9 視窗高，天生留出上下 25% 餘裕供視差滑動，
+  // 不必再靠放大裁切。預設 translateY(-12.5%) 相對自身高置中（手機／JS 未執行時的
+  // fallback）；桌機由 GSAP 以 yPercent 接管。
   .projects__item-image {
     width: 100%;
-    height: calc(100% + $parallax-offset * 2);
-    margin-top: calc($parallax-offset * -1);
-    transition: transform 0.6s var(--ease-out-expo);
+    aspect-ratio: 4 / 3;
+    transform: translateY(-12.5%);
+    will-change: transform;
   }
 
-  .projects__item-link:hover .projects__item-image {
+  // hover 放大移到 img 層（視差層的 transform 已被 GSAP 接管，不能再放 scale）
+  .projects__item-link:hover .projects__item-image :global(img) {
     transform: scale(1.05);
   }
 
@@ -356,7 +358,7 @@ const projects = (await getCollection(collectionName))
     height: 100%;
     object-fit: cover;
     background-color: var(--color-surface);
-    will-change: transform;
+    transition: transform 0.6s var(--ease-out-expo);
   }
 
   .projects__nav-img {
@@ -523,15 +525,18 @@ const projects = (await getCollection(collectionName))
     // start: 專案頂部碰到視窗底部 → end: 專案底部碰到視窗頂部
     // ------------------------------------------------------------------
     items.forEach((item, index) => {
-      const img = item.querySelector<HTMLElement>(".projects__item-image img") ||
-        item.querySelector<HTMLElement>(".projects__item-image-placeholder");
+      // 視差作用在 .projects__item-image（aspect-ratio 4/3 的視差層），用 yPercent
+      // 相對自身高度移動：-22.5% → -2.5%（中點 -12.5% 即置中，移動範圍落在 4/3 vs
+      // 16/9 的 25% 餘裕內，全斷點不露白，且不需放大裁切主體）
+      const parallaxLayer = item.querySelector<HTMLElement>(".projects__item-image");
 
-      // 視差動畫：圖片從 y: -120 → y: 120（對應 SCSS $parallax-offset: 120px）
-      if (img) {
-        const tween = gsap.fromTo(img,
-          { y: -120 },
+      if (parallaxLayer) {
+        // y: 0 抵銷 CSS fallback 的 translateY(-12.5%)——GSAP 會把它解析成像素 y
+        // 疊加在 yPercent 上，不歸零會多推約 12.5% 造成進場時下緣露白
+        const tween = gsap.fromTo(parallaxLayer,
+          { y: 0, yPercent: -22.5 },
           {
-            y: 120,
+            yPercent: -2.5,
             ease: "none",
             scrollTrigger: {
               id: `projects-parallax-${index}`,
