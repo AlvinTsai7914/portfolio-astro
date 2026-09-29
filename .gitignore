@@ -32,3 +32,6 @@ pnpm-debug.log*
 # 個人履歷與抽出的純文字(含敏感個資,不上 repo)
 docs/蔡承初.pdf
 docs/resume.txt
+
+# 封面產線實驗暫存(截圖素材、拼貼腳本、clone 的 repo)
+.preview/
