@@ -464,6 +464,11 @@ const yearRange = `${Math.min(...years)} — ${Math.max(...years)}`;
     gap: var(--space-6);
     margin-top: var(--space-4);
     flex-wrap: wrap;
+
+    // 桌機禁止換行:長標題被壓縮走 ellipsis,而不是把 nav/進度條擠到第二行
+    @media (min-width: 768px) {
+      flex-wrap: nowrap;
+    }
   }
 
   .slider-nav {
@@ -513,9 +518,10 @@ const yearRange = `${Math.min(...years)} — ${Math.max(...years)}`;
     flex: 1;
     min-width: 200px;
 
-    // 桌機固定寬:標題文字變化時進度條位置恆定不跳動
+    // 桌機固定寬(與視口連動但不隨標題變化):1440 約 792px、1920 封頂 860px,
+    // 標題文字變化時進度條位置恆定不跳動
     @media (min-width: 768px) {
-      flex: 0 0 280px;
+      flex: 0 0 clamp(320px, 55vw, 860px);
       min-width: 0;
     }
   }
