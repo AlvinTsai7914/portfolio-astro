@@ -1,0 +1,76 @@
+---
+// ==========================================================================
+// 404 頁 — 風格對齊 Design DNA(深色 + mono 標籤 + 品牌橘)
+// Astro 慣例:src/pages/404.astro → dist/404.html,Vercel 自動接手
+// ==========================================================================
+
+import BaseLayout from "../components/layout/BaseLayout.astro";
+---
+
+<BaseLayout title="404 — 蔡承初 Alvin Tsai" description="找不到這個頁面 / Page not found" lang="zh">
+  <section class="not-found section" data-theme="dark">
+    <div class="grid">
+      <div class="grid-full">
+        <p class="not-found__label">// 404</p>
+        <h1 class="not-found__title">404</h1>
+        <p class="not-found__desc">找不到這個頁面。 / This page does not exist.</p>
+        <div class="not-found__links">
+          <a href="/zh/" class="not-found__link">回首頁</a>
+          <a href="/en/" class="not-found__link">Home (EN)</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style lang="scss">
+  .not-found {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: var(--site-header-height);
+  }
+
+  .not-found__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-body-sm);
+    color: var(--color-brand);
+    letter-spacing: 0.06em;
+    margin: 0 0 var(--space-4);
+  }
+
+  .not-found__title {
+    font-size: clamp(6rem, 20vw, 16rem);
+    line-height: 1;
+    margin: 0 0 var(--space-6);
+  }
+
+  .not-found__desc {
+    font-size: var(--text-body-lg);
+    color: var(--color-foreground-muted);
+    margin: 0 0 var(--space-8);
+  }
+
+  .not-found__links {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .not-found__link {
+    font-family: var(--font-mono);
+    font-size: var(--text-body);
+    color: var(--color-foreground);
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--color-border-muted);
+    transition:
+      background-color var(--transition-duration) var(--transition-timing),
+      color var(--transition-duration) var(--transition-timing),
+      border-color var(--transition-duration) var(--transition-timing);
+
+    &:hover {
+      background-color: var(--color-brand);
+      border-color: var(--color-brand);
+      color: var(--color-white, #fff);
+    }
+  }
+</style>
