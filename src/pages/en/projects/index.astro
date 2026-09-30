@@ -162,7 +162,13 @@ const yearRange = `${Math.min(...years)} — ${Math.max(...years)}`;
   }
   .view-toggle__icon { width: 18px; height: 18px; display: block; }
 
-  .slider-active-title { font-size: var(--text-h4); font-weight: var(--font-weight-medium); letter-spacing: -0.02em; margin: 0; min-height: 1em; flex: 0 1 auto; }
+  .slider-active-title {
+    font-size: var(--text-h4); font-weight: var(--font-weight-medium); letter-spacing: -0.02em;
+    margin: 0; min-height: 1em;
+    flex: 1 1 100%; // 手機獨佔一行
+    // 桌機:彈性填滿,標題長短變化不推擠右側;過長省略
+    @media (min-width: 768px) { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  }
 
   .projects-list__wrap { margin-block: var(--space-6); overflow: hidden; }
 
@@ -254,7 +260,11 @@ const yearRange = `${Math.min(...years)} — ${Math.max(...years)}`;
     &:disabled { opacity: 0.3; cursor: not-allowed; &:hover { background-color: rgba(255, 255, 255, 0.04); color: var(--color-foreground); border-color: rgba(255, 255, 255, 0.3); } }
   }
 
-  .slider-progress { display: flex; align-items: center; gap: var(--space-4); flex: 1; min-width: 200px; }
+  .slider-progress {
+    display: flex; align-items: center; gap: var(--space-4); flex: 1; min-width: 200px;
+    // 桌機固定寬:標題變化時進度條位置恆定
+    @media (min-width: 768px) { flex: 0 0 280px; min-width: 0; }
+  }
   .slider-progress__bar { flex: 1; height: 1px; background-color: rgba(238, 238, 238, 0.1); position: relative; overflow: hidden; cursor: pointer; }
   .slider-progress__bar-fill { position: absolute; top: 0; left: 0; height: 100%; width: calc(var(--progress, 0) * 100%); background-color: var(--color-brand); transition: width 0.6s var(--ease-out); }
   .slider-progress__count { font-family: var(--font-mono); font-size: var(--text-body-sm); color: var(--color-foreground-muted); flex-shrink: 0; }

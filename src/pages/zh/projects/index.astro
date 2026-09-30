@@ -261,7 +261,17 @@ const yearRange = `${Math.min(...years)} — ${Math.max(...years)}`;
     letter-spacing: -0.02em;
     margin: 0;
     min-height: 1em; // 預留空間避免 scramble 時跳動
-    flex: 0 1 auto;
+    flex: 1 1 100%; // 手機:獨佔一行
+
+    // 桌機:彈性填滿剩餘寬度(標題長短變化由自身吸收,不推擠右側 nav/進度條),
+    // 過長以省略號截斷
+    @media (min-width: 768px) {
+      flex: 1 1 auto;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   // ==========================================================================
@@ -502,6 +512,12 @@ const yearRange = `${Math.min(...years)} — ${Math.max(...years)}`;
     gap: var(--space-4);
     flex: 1;
     min-width: 200px;
+
+    // 桌機固定寬:標題文字變化時進度條位置恆定不跳動
+    @media (min-width: 768px) {
+      flex: 0 0 280px;
+      min-width: 0;
+    }
   }
 
   .slider-progress__bar {
