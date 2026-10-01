@@ -173,6 +173,15 @@ const { Content } = await render(project);
   }
 
   .case-study__prose {
+    :global(img) {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius-12);
+      margin-block: var(--space-8);
+      background-color: var(--color-surface);
+    }
+
     :global(h2) {
       font-size: var(--text-h3);
       margin-top: var(--space-12);
