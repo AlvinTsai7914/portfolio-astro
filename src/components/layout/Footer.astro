@@ -23,6 +23,11 @@ const navItems = [
 ];
 
 const currentYear = new Date().getFullYear();
+
+// 首頁用純錨點(#about),非首頁加上首頁路徑(/zh/#about)——與 Header/MobileMenu 同邏輯,
+// 否則在列表頁/詳細頁點 footer nav 會因當前頁沒有該 id 而毫無反應
+const isHome = Astro.url.pathname === `/${lang}/` || Astro.url.pathname === `/${lang}`;
+const navBase = isHome ? "" : `/${lang}/`;
 ---
 
 <footer class="footer" data-theme="dark">
@@ -35,7 +40,7 @@ const currentYear = new Date().getFullYear();
         navItems.map((item, index) => (
           <>
             {index > 0 && <span class="footer__nav-dot" aria-hidden="true">&middot;</span>}
-            <a href={`#${item.id}`} class="footer__nav-link">
+            <a href={`${navBase}#${item.id}`} class="footer__nav-link">
               {item.label[lang]}
             </a>
           </>
