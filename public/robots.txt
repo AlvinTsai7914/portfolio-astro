@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://portfolio-astro.vercel.app/sitemap-index.xml
+Sitemap: https://portfolio-astro-five-beta.vercel.app/sitemap-index.xml

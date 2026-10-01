@@ -35,3 +35,5 @@ docs/resume.txt
 
 # 封面產線實驗暫存(截圖素材、拼貼腳本、clone 的 repo)
 .preview/
+
+.vercel
