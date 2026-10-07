@@ -50,7 +50,14 @@ const t = content[lang];
   <div class="grid">
     <div class="grid-narrow about">
       <div class="about__portrait">
-        <div class="about__portrait-placeholder" data-fade-up data-fade-y="60"></div>
+        <img
+          src="/images/about-portrait.webp"
+          alt={lang === "zh" ? "蔡承初的 ASCII 風格頭像" : "ASCII-style portrait of Alvin Tsai"}
+          class="about__portrait-img"
+          loading="lazy"
+          data-fade-up
+          data-fade-y="60"
+        />
       </div>
       <div class="about__content">
         <RevealText delay={0.1}><SectionLabel text="About" /></RevealText>
@@ -82,11 +89,14 @@ const t = content[lang];
   // --------------------------------------------------------------------------
   // Portrait
   // --------------------------------------------------------------------------
-  .about__portrait-placeholder {
+  .about__portrait-img {
+    display: block;
     width: 100%;
     max-width: 280px;
     aspect-ratio: 3 / 4;
+    object-fit: cover;
     background-color: var(--color-surface);
+    border-radius: var(--radius-12);
     opacity: 0;
   }
 
@@ -144,7 +154,7 @@ const t = content[lang];
       grid-template-columns: 3fr 5fr;
     }
 
-    .about__portrait-placeholder {
+    .about__portrait-img {
       max-width: none;
     }
 
