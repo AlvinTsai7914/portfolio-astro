@@ -10,7 +10,7 @@
   // 來源：design-dna.md 第 2 節
   // 順序：英文字型在前，中文字型在後（CLAUDE.md:91）
   // --------------------------------------------------------------------------
-  --font-sans: "Geist", "BIZ UDGothic", "Noto Sans TC", ui-sans-serif,
+  --font-sans: "Geist", "Noto Sans TC", ui-sans-serif,
     system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono", "Noto Sans Mono", ui-monospace, "Fira Code",
     monospace;
@@ -34,7 +34,7 @@
   // Font Weight
   // 來源：design-dna.md 第 2 節（字重表）
   // --------------------------------------------------------------------------
-  --font-weight-light: 300;
+  // light(300)已移除:全站零使用,Google Fonts 不載 300 省下整套中文切片
   --font-weight-medium: 500;
   --font-weight-bold: 700;
 
