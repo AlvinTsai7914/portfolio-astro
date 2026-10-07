@@ -52,9 +52,9 @@ const LAYER_DURATIONS = [1.5, 1.5, 2];
 
 // 素材路徑（海塔、修塔爾克、芙莉蓮+費倫）
 const IMAGE_PATHS = [
-  "/images/projects/frieren-group/frieren-group2.png",
-  "/images/projects/frieren-group/frieren-group3.png",
-  "/images/projects/frieren-group/frieren-group4.png",
+  "/images/projects/frieren-group/frieren-group2.webp",
+  "/images/projects/frieren-group/frieren-group3.webp",
+  "/images/projects/frieren-group/frieren-group4.webp",
 ];
 
 // --------------------------------------------------------------------------

@@ -196,9 +196,9 @@ function initHeroAscii() {
   // 載入 4 張 texture
   // --------------------------------------------------------------------------
   Promise.all([
-    loadTexture("/images/hero/frieren.png"),
+    loadTexture("/images/hero/frieren.webp"),
     loadTexture("/images/hero/frieren-depth.png"),
-    loadTexture("/images/hero/frieren-staff.png"),
+    loadTexture("/images/hero/frieren-staff.webp"),
     loadTexture("/images/hero/frieren-staff-depth.png"),
   ]).then(([tex1, depth1, tex2, depth2]) => {
     if (!glRenderer) return;
