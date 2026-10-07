@@ -26,8 +26,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# Claude Code local settings
-.claude/
+# Claude Code local settings(skills 子目錄例外:專案層流程固化,要進版控)
+.claude/*
+!.claude/skills/
 
 # 個人履歷與抽出的純文字(含敏感個資,不上 repo)
 docs/蔡承初.pdf
